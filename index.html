@@ -196,10 +196,10 @@ body{font-family:var(--font-body);font-size:var(--fs-base);line-height:1.55;colo
 .sync-status{font-family:var(--font-body);font-size:var(--fs-xs);color:var(--fg-faded);text-align:center;padding:var(--sp-1) 0}
 .sync-status.sync-ok{color:var(--accent)}
 .sync-status.sync-err{color:var(--danger)}
-.settings-row input[type="text"],.settings-row input[type="password"]{
+.settings-row input[type="text"],.settings-row input[type="url"]{
   font-family:var(--font-mono);font-size:var(--fs-xs);padding:var(--sp-1) var(--sp-2);
   border:var(--bw) solid var(--border);border-radius:var(--r-sm);background:var(--bg);color:var(--fg);
-  width:200px;height:28px;text-align:right}
+  width:100%;height:28px}
 .settings-section-label{font-family:var(--font-display);font-size:var(--fs-sm);letter-spacing:var(--ls-caps);
   color:var(--accent);margin-top:var(--sp-3);margin-bottom:var(--sp-1);padding-top:var(--sp-2);border-top:var(--bw) solid var(--border)}
 /* ===== TOP BAR (tabs + settings gear) ===== */
@@ -274,7 +274,7 @@ body{font-family:var(--font-body);font-size:var(--fs-base);line-height:1.55;colo
     <button class="settings-gear" id="expand-toggle-btn" title="Expand All" onclick="toggleExpandAll()">
       <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
-    <button class="settings-gear" id="sync-btn" title="Sync with Gist" onclick="gistSync()" style="display:none">
+    <button class="settings-gear" id="sync-btn" title="Sync" onclick="fbSync()" style="display:none">
       <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
     </button>
     <button class="settings-gear" title="Settings" onclick="openSettings()">
@@ -389,8 +389,7 @@ function openSettings(){
   const kac=document.getElementById("kindred-as-class").checked;
   const saved=JSON.parse(localStorage.getItem("dw-settlement-gen-settings")||"{}");
   const curTheme=saved.theme||"regular";
-  const gistId=saved.gistId||"";
-  const gistToken=saved.gistToken||"";
+  const fbUrl=saved.firebaseUrl||"";
   
   const modal=document.createElement("div");
   modal.className="modal-backdrop";
@@ -414,19 +413,14 @@ function openSettings(){
       </div>
     </div>
     <div class="settings-section-label">Sync</div>
-      <div class="settings-row">
-        <label>Gist ID</label>
-        <input type="text" id="settings-gist-id" value="${gistId}" placeholder="e.g. abc123def456" onchange="saveGistSettings()">
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:var(--sp-1)">
+        <label>Firebase Database URL</label>
+        <input type="url" id="settings-fb-url" value="${fbUrl}" placeholder="https://your-project-default-rtdb.firebaseio.com" onchange="saveFbSettings()">
       </div>
-      <div class="settings-row">
-        <label>Token <span style="font-size:10px;color:var(--fg-faded)">(write)</span></label>
-        <input type="password" id="settings-gist-token" value="${gistToken}" placeholder="ghp_..." onchange="saveGistSettings()">
+      <div class="settings-row" style="justify-content:center">
+        <button class="modal-btn modal-btn-ghost" style="font-size:var(--fs-xs)" onclick="testFbConnection()">Test Connection</button>
       </div>
-      <div class="settings-row">
-        <label></label>
-        <button class="modal-btn modal-btn-ghost" style="font-size:var(--fs-xs)" onclick="testGistConnection()">Test Connection</button>
-      </div>
-      <div id="gist-test-status" class="sync-status"></div>
+      <div id="fb-test-status" class="sync-status"></div>
     <div class="modal-buttons">
       <button class="modal-btn modal-btn-primary" onclick="this.closest('.modal-backdrop').remove()">Done</button>
     </div>
@@ -2398,50 +2392,39 @@ function bldSave(){
   showSaveModal();
 }
 
-// ===== GIST SYNC =====
-function getGistSettings(){
+// ===== FIREBASE REALTIME DATABASE SYNC =====
+function getFbUrl(){
   const s=JSON.parse(localStorage.getItem("dw-settlement-gen-settings")||"{}");
-  return {gistId:s.gistId||"",gistToken:s.gistToken||""};
+  return (s.firebaseUrl||"").replace(/\/$/,""); // strip trailing slash
 }
 
-function saveGistSettings(){
+function saveFbSettings(){
   const s=JSON.parse(localStorage.getItem("dw-settlement-gen-settings")||"{}");
-  const idEl=document.getElementById("settings-gist-id");
-  const tokEl=document.getElementById("settings-gist-token");
-  if(idEl) s.gistId=idEl.value.trim();
-  if(tokEl) s.gistToken=tokEl.value.trim();
+  const el=document.getElementById("settings-fb-url");
+  if(el) s.firebaseUrl=el.value.trim();
   localStorage.setItem("dw-settlement-gen-settings",JSON.stringify(s));
-  updateSyncBtnVisibility();
+  updateSyncBtn();
 }
 
-function updateSyncBtnVisibility(){
-  const g=getGistSettings();
+function updateSyncBtn(){
   const btn=document.getElementById("sync-btn");
-  if(btn) btn.style.display=g.gistId?"":"none";
+  if(btn) btn.style.display=getFbUrl()?"":"none";
 }
 
-function testGistConnection(){
-  const g=getGistSettings();
-  const status=document.getElementById("gist-test-status");
-  if(!g.gistId){status.textContent="Enter a Gist ID first.";status.className="sync-status sync-err";return;}
+function testFbConnection(){
+  const url=getFbUrl();
+  const status=document.getElementById("fb-test-status");
+  if(!url){status.textContent="Enter a Firebase Database URL first.";status.className="sync-status sync-err";return;}
   status.textContent="Testing...";status.className="sync-status";
   
-  const headers={Accept:"application/vnd.github+json"};
-  if(g.gistToken) headers.Authorization="Bearer "+g.gistToken;
-  
-  fetch("https://api.github.com/gists/"+g.gistId,{headers})
+  fetch(url+"/npcs.json")
     .then(r=>{
       if(!r.ok) throw new Error("HTTP "+r.status);
       return r.json();
     })
     .then(data=>{
-      const hasFile=data.files&&data.files["npcs.json"];
-      const canWrite=!!g.gistToken;
-      let msg="Connected! ";
-      if(hasFile) msg+="npcs.json found. ";
-      else msg+="npcs.json not found (will be created on first sync). ";
-      msg+=canWrite?"Read+Write mode.":"Read-only (no token).";
-      status.textContent=msg;
+      if(data===null) status.textContent="Connected! Database is empty \u2014 ready for first sync.";
+      else status.textContent="Connected! Found existing roster data.";
       status.className="sync-status sync-ok";
     })
     .catch(err=>{
@@ -2450,117 +2433,78 @@ function testGistConnection(){
     });
 }
 
-async function gistPull(){
-  const g=getGistSettings();
-  if(!g.gistId) return false;
-  
-  const headers={Accept:"application/vnd.github+json"};
-  if(g.gistToken) headers.Authorization="Bearer "+g.gistToken;
-  
+async function fbPull(){
+  const url=getFbUrl();
+  if(!url) return false;
   try{
-    const r=await fetch("https://api.github.com/gists/"+g.gistId,{headers});
+    const r=await fetch(url+"/npcs.json");
     if(!r.ok) throw new Error("HTTP "+r.status);
-    const data=await r.json();
-    if(!data.files||!data.files["npcs.json"]) return true; // No file yet, nothing to pull
+    const remote=await r.json();
+    if(!remote||!remote.locations) return true; // empty DB
     
-    const remote=JSON.parse(data.files["npcs.json"].content);
-    if(!remote.locations) return true;
-    
-    // Merge remote into local
-    const local=loadSaved();
-    let added=0;
-    for(const [loc,rData] of Object.entries(remote.locations)){
-      if(!local.locations[loc]) local.locations[loc]={entries:[]};
-      const existingIds=new Set(local.locations[loc].entries.map(e=>e.id));
-      for(const entry of (rData.entries||[])){
-        if(!existingIds.has(entry.id)){
-          local.locations[loc].entries.push(entry);
-          added++;
-        } else {
-          // Update existing entry if remote is newer
-          const localEntry=local.locations[loc].entries.find(e=>e.id===entry.id);
-          if(localEntry&&entry.savedAt&&localEntry.savedAt&&entry.savedAt>localEntry.savedAt){
-            Object.assign(localEntry,entry);
-          }
-        }
-      }
-    }
-    // Also remove entries locally that were deleted remotely
-    // (entries in local but not in remote, if remote has that location)
-    for(const [loc,rData] of Object.entries(remote.locations)){
-      if(local.locations[loc]){
-        const remoteIds=new Set((rData.entries||[]).map(e=>e.id));
-        local.locations[loc].entries=local.locations[loc].entries.filter(e=>remoteIds.has(e.id));
-        if(local.locations[loc].entries.length===0) delete local.locations[loc];
-      }
-    }
-    // Remove locations that exist locally but not remotely
-    for(const loc of Object.keys(local.locations)){
-      if(!remote.locations[loc]) delete local.locations[loc];
-    }
-    
-    storeSaved(local);
+    // Replace local with remote (Firebase is the source of truth)
+    storeSavedLocal({locations:remote.locations});
     return true;
   }catch(err){
-    console.error("Gist pull failed:",err);
+    console.error("Firebase pull failed:",err);
     return false;
   }
 }
 
-async function gistPush(){
-  const g=getGistSettings();
-  if(!g.gistId||!g.gistToken) return false;
-  
+async function fbPush(){
+  const url=getFbUrl();
+  if(!url) return false;
   const local=loadSaved();
-  const content=JSON.stringify(local,null,2);
-  
   try{
-    const r=await fetch("https://api.github.com/gists/"+g.gistId,{
-      method:"PATCH",
-      headers:{
-        Accept:"application/vnd.github+json",
-        Authorization:"Bearer "+g.gistToken,
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({files:{"npcs.json":{content}}})
+    const r=await fetch(url+"/npcs.json",{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(local)
     });
     if(!r.ok) throw new Error("HTTP "+r.status);
     return true;
   }catch(err){
-    console.error("Gist push failed:",err);
+    console.error("Firebase push failed:",err);
     return false;
   }
 }
 
-async function gistSync(){
+async function fbSync(){
   const btn=document.getElementById("sync-btn");
   btn.classList.add("sync-spinning");
   
-  // Pull first, then push
-  const pulled=await gistPull();
-  if(pulled){
-    const g=getGistSettings();
-    if(g.gistToken) await gistPush();
-  }
+  // Pull from Firebase (source of truth), then push local back
+  await fbPull();
+  await fbPush();
   
   btn.classList.remove("sync-spinning");
-  renderSavedTab();
+  // Re-render roster if on that tab
+  const activeTab=document.querySelector(".tab-content.active");
+  if(activeTab&&activeTab.id==="tab-saved") renderSavedTab();
 }
 
-// Auto-sync: after any save/edit/delete, push to gist if configured
+// Separate local-only storage (no sync trigger) to avoid infinite loops
+function storeSavedLocal(data){
+  localStorage.setItem(LS_KEY,JSON.stringify(data));
+}
+
+// Override storeSaved to auto-push to Firebase
 const _origStoreSaved=storeSaved;
 storeSaved=function(data){
   _origStoreSaved(data);
-  const g=getGistSettings();
-  if(g.gistId&&g.gistToken) gistPush(); // fire-and-forget
+  if(getFbUrl()) fbPush(); // fire-and-forget
 };
 
-// On load: show sync button if configured, auto-pull
+// On page load: show sync button, auto-pull if configured
 (function(){
-  updateSyncBtnVisibility();
-  const g=getGistSettings();
-  if(g.gistId){
-    gistPull().then(()=>renderSavedTab());
+  updateSyncBtn();
+  if(getFbUrl()){
+    fbPull().then(ok=>{
+      if(ok){
+        const activeTab=document.querySelector(".tab-content.active");
+        if(activeTab&&activeTab.id==="tab-saved") renderSavedTab();
+      }
+    });
   }
 })();
 </script>
