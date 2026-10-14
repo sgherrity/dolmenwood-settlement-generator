@@ -274,9 +274,18 @@ body{font-family:var(--font-body);font-size:var(--fs-base);line-height:1.55;colo
     <button class="settings-gear" id="expand-toggle-btn" title="Expand All" onclick="toggleExpandAll()">
       <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
-    <button class="settings-gear" id="sync-btn" title="Sync" onclick="fbSync()" style="display:none">
-      <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-    </button>
+    <div id="sync-wrap" style="display:none;position:relative;display:inline-flex;align-items:center;gap:0">
+      <button class="settings-gear" id="sync-btn" title="Sync with Cloud" onclick="fbMerge()">
+        <svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg><span id="sync-dot" style="display:none;position:absolute;top:2px;right:14px;width:7px;height:7px;background:var(--danger);border-radius:50%"></span>
+      </button>
+      <button class="settings-gear" id="sync-menu-btn" title="Sync options" onclick="toggleSyncMenu(event)" style="padding:0 2px;min-width:14px">
+        <svg viewBox="0 0 24 24" style="width:10px;height:10px"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div id="sync-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:var(--bg);border:var(--bw) solid var(--border);border-radius:var(--r-sm);box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:100;min-width:210px;font-family:var(--font-body);font-size:var(--fs-sm)">
+        <button onclick="fbOverrideLocal()" style="display:block;width:100%;text-align:left;padding:var(--sp-2) var(--sp-3);border:none;background:none;color:var(--fg);cursor:pointer;font-family:inherit;font-size:inherit" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='none'">↓ Override My Roster</button>
+        <button onclick="fbOverrideCloud()" style="display:block;width:100%;text-align:left;padding:var(--sp-2) var(--sp-3);border:none;background:none;color:var(--fg);cursor:pointer;font-family:inherit;font-size:inherit;border-top:1px solid var(--border)" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='none'">↑ Override the Cloud</button>
+      </div>
+    </div>
     <button class="settings-gear" title="Settings" onclick="openSettings()">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
@@ -323,8 +332,12 @@ body{font-family:var(--font-body);font-size:var(--fs-base);line-height:1.55;colo
           <option value="Specialist">Specialist</option>
           <option value="Hound">Hound</option>
           <option value="Mount">Mount</option>
+          <option value="Treasure Hoard">Treasure Hoard</option>
+          <option value="Treasure Map">Treasure Map</option>
+          <option value="Magic Item">Magic Item</option>
+          <option value="Trade Goods">Trade Goods</option>
         </select>
-        <button class="btn-generate" onclick="bldRollAll()"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px;margin-right:4px"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="8" r="1.5"/><circle cx="8" cy="16" r="1.5"/><circle cx="16" cy="16" r="1.5"/><circle cx="12" cy="12" r="1.5"/></svg>Roll All</button>
+        <button class="btn-generate" onclick="bldRollAll()"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px;margin-right:4px"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="8" r="1.5"/><circle cx="8" cy="16" r="1.5"/><circle cx="16" cy="16" r="1.5"/><circle cx="12" cy="12" r="1.5"/></svg>Randomize</button>
       </div>
     </div>
     <div class="builder-form" id="builder-form"></div>
@@ -332,11 +345,7 @@ body{font-family:var(--font-body);font-size:var(--fs-base);line-height:1.55;colo
   </div>
   <div id="tab-saved" class="tab-content">
     <div class="tab-controls" id="roster-controls">
-      <div class="tab-controls-right">
-        <button class="modal-btn modal-btn-ghost" onclick="exportSaved()" title="Export all saved NPCs to a JSON file">Export</button>
-        <button class="modal-btn modal-btn-ghost" onclick="document.getElementById('import-file-top').click()" title="Import saved NPCs from a JSON file">Import</button>
-        <input type="file" id="import-file-top" class="import-file-input" accept=".json" onchange="importSaved(this)">
-      </div>
+      <div class="tab-controls-right"></div>
     </div>
     <div id="saved-output"></div>
   </div>
@@ -421,9 +430,17 @@ function openSettings(){
         <button class="modal-btn modal-btn-ghost" style="font-size:var(--fs-xs)" onclick="testFbConnection()">Test Connection</button>
       </div>
       <div id="fb-test-status" class="sync-status"></div>
-    <div class="modal-buttons">
-      <button class="modal-btn modal-btn-primary" onclick="this.closest('.modal-backdrop').remove()">Done</button>
+    
+<div class="settings-section-label" style="margin-top:var(--sp-3)">Data</div>
+        <div style="display:flex;gap:var(--sp-2)">
+      <button class="modal-btn modal-btn-ghost" style="flex:1" onclick="exportSaved()">Export</button>
+      <button class="modal-btn modal-btn-ghost" style="flex:1" onclick="document.getElementById('import-file-settings').click()">Import</button>
+      <input type="file" id="import-file-settings" class="import-file-input" accept=".json" onchange="importSaved(this)" style="display:none">
     </div>
+    <div style="margin-top:var(--sp-4)">
+      <button class="modal-btn modal-btn-primary" style="width:100%" onclick="this.closest('.modal-backdrop').remove()">Done</button>
+    </div>
+  </div>
   </div>`;
   modal.addEventListener("click",e=>{if(e.target===modal)modal.remove();});
   document.getElementById("modal-root").appendChild(modal);
@@ -565,14 +582,14 @@ function saveCard(btn){
   const clone=card.cloneNode(true);
   clone.querySelector(".card-actions")?.remove();
   _pendingSaveText=htmlToSavedText(clone.innerHTML);
-  _pendingSaveType=card.dataset.cardType||"townsfolk";
+  _pendingSaveType=card.dataset.cardType==="treasure"?"hoard":(card.dataset.cardType||"townsfolk");
   // Extract name: first <b> tag content (the NPC/animal name)
   const firstB=clone.querySelector("b");
   _pendingSaveName=firstB?(firstB.textContent||"").trim():"Unknown";
-  showSaveModal();
+  showSaveModal(_pendingSaveType==="hoard"||_pendingSaveType==="magic-item"||_pendingSaveType==="trade-goods","trade-goods");
 }
 
-function showSaveModal(){
+function showSaveModal(isHoard){
   const saved=loadSaved();
   const locs=Object.keys(saved.locations).sort();
   const defaults=["Blackeswell","Castle Brackenwold","Cobton on the Shiver","Dreg & Shantywood Isle","Fort Vulgar","High-Hankle","Lankshorn","Meagre\u2019s Reach","Odd","Orbswallow","Prigwort","Woodcutter\u2019s Encampment"];
@@ -585,7 +602,7 @@ function showSaveModal(){
   modal.className="modal-backdrop";
   const panel=document.createElement("div");
   panel.className="modal-panel";
-  panel.innerHTML=`<h3>Save NPC</h3><label>Choose existing location or type a new one</label>`;
+  panel.innerHTML=`<h3>${isHoard?"Save Item":"Save NPC"}</h3>${isHoard?'<label style="display:block;margin-bottom:var(--sp-1)">Item Name</label><input type="text" id="save-hoard-name" placeholder="e.g. Flame Tongue, Dragon\'s Trove..." style="margin-bottom:var(--sp-3);font-family:var(--font-body);font-size:var(--fs-base);padding:var(--sp-1) var(--sp-2);border:var(--bw) solid var(--border);border-radius:var(--r-sm);background:var(--bg);color:var(--fg);width:100%;height:var(--control-h)">':''}<label>Choose existing location or type a new one</label>`;
 
   const sel=document.createElement("select");
   sel.id="save-loc-select";
@@ -629,6 +646,15 @@ function confirmSave(){
   const loc=sel.value==="__custom__"?inp.value.trim():sel.value;
   if(!loc){inp.style.display="";inp.focus();return;}
   
+  // For hoards, require a name and prepend it to saved text
+  const hoardNameEl=document.getElementById("save-hoard-name");
+  if(hoardNameEl){
+    const hoardName=hoardNameEl.value.trim();
+    if(!hoardName){hoardNameEl.style.borderColor="var(--danger)";hoardNameEl.focus();return;}
+    _pendingSaveName=hoardName;
+    _pendingSaveText=hoardName+"\n"+_pendingSaveText;
+  }
+  
   const saved=loadSaved();
   if(!saved.locations[loc]) saved.locations[loc]={entries:[]};
   saved.locations[loc].entries.push({
@@ -667,8 +693,8 @@ function renderSavedTab(){
     return;
   }
   
-  const typeOrder=["adventurer","townsfolk","hound","mount","specialist"];
-  const typeLabels={adventurer:"Adventurers",townsfolk:"Townsfolk",hound:"Hounds",mount:"Mounts",specialist:"Specialists"};
+  const typeOrder=["adventurer","townsfolk","hound","mount","specialist","hoard","magic-item"];
+  const typeLabels={adventurer:"Adventurers",townsfolk:"Townsfolk",hound:"Hounds",mount:"Mounts",specialist:"Specialists",hoard:"Treasure Hoards","magic-item":"Magic Items","trade-goods":"Trade Goods"};
   
   let html="";
   for(const loc of locs){
@@ -1557,6 +1583,10 @@ function genSpecialist(settlement,type,title,wage){
 }
 
 // ===== MAIN GENERATION =====
+
+// Settlement result cache
+const _genCache={};
+
 function generate(){
   const settlement=document.getElementById("settlement-select").value;
   const s=S[settlement];
@@ -1654,13 +1684,22 @@ function generate(){
     <div class="section-header" onclick="toggleSection(this)">Specialists<span class="chevron">\u25BC</span></div>
     <div class="section-body">${specs.join("")}</div></div>`;
 
+  _genCache[settlement]=html;
   document.getElementById("output").innerHTML=html;
 }
 
 // ===== EVENT LISTENERS =====
-document.getElementById("btn-generate").addEventListener("click",generate);
-document.getElementById("settlement-select").addEventListener("change",generate);
-document.getElementById("kindred-as-class").addEventListener("change",function(){generate();if(_builderInited)bldCascadeKindred();});
+document.getElementById("btn-generate").addEventListener("click",function(){
+  const key=document.getElementById("settlement-select").value;
+  delete _genCache[key];
+  generate();
+});
+document.getElementById("settlement-select").addEventListener("change",function(){
+  const key=document.getElementById("settlement-select").value;
+  if(_genCache[key]){document.getElementById("output").innerHTML=_genCache[key];}
+  else{generate();}
+});
+document.getElementById("kindred-as-class").addEventListener("change",function(){Object.keys(_genCache).forEach(k=>delete _genCache[k]);generate();if(_builderInited)bldCascadeKindred();});
 
 // Generate on load
 generate();
@@ -1735,8 +1774,23 @@ function confirmReset(){
   localStorage.removeItem("dw-settlement-gen-settings");
   document.documentElement.classList.remove("night-mode","modern-mode");
   document.querySelectorAll("#theme-toggle .seg-btn").forEach(b=>b.classList.toggle("active",b.dataset.theme==="regular"));
+  // Clear all caches
+  Object.keys(_genCache).forEach(k=>delete _genCache[k]);
+  Object.keys(_bldTypeInited).forEach(k=>delete _bldTypeInited[k]);
+  window._treasureResult=null;window._treasureMapResult=null;window._magicItemResult=null;window._tradeGoodsResult=null;window._bldPrevType="";
+  _localDirty=false;updateSyncDot();
+  // Re-init builder with fresh random values
+  if(typeof bldRollAll==="function"){
+    const topSel=document.getElementById("bld-type-top");
+    if(topSel) topSel.value="Adventurer";
+    const typeEl=bldEl("type");
+    if(typeEl) typeEl.value="Adventurer";
+    bldCascadeType();
+    bldRollAll();
+  }
   switchTab("generate");
   generate();
+  renderSavedTab();
 }
 
 // ===== EXPORT / IMPORT =====
@@ -1896,7 +1950,8 @@ function initBuilder(){
   // SECTION 1: Identity
   let s1="";
   // Type moved to top bar — hidden select for JS reference
-  s1+=buildRow("Type","type",{items:["Adventurer","Townsfolk","Specialist","Hound","Mount"],hidden:true});
+  s1+=buildRow("Type","type",{items:["Adventurer","Townsfolk","Specialist","Hound","Mount","Treasure Hoard","Treasure Map","Magic Item","Trade Goods"],hidden:true});
+
   s1+=buildRow("Kindred","kindred",{items:ALL_KINDREDS});
   s1+=buildRow("Class","class",{items:[]});
   s1+=buildRow("Role","specrole",{items:SPEC_ROLES.map(r=>({v:r.id,label:r.name})),hidden:true});
@@ -1909,6 +1964,16 @@ function initBuilder(){
   s1+=buildRow("Wage","wage",{type:"static",value:"",hidden:true,noroll:true});
   // Roll All moved to tab controls bar
   html+=buildSection("Identity","identity",s1,true);
+  
+  // TREASURE SECTION
+  let sTreasure="";
+  sTreasure+=buildRow("d100 Result","tmap",{items:TMAP_TABLE.map((t,i)=>({v:String(i),label:(t.min===t.max?String(t.min):t.min+"\u2013"+t.max)+": "+t.desc}))});
+  sTreasure+=buildRow("Goods Type","tgcat",{items:TRADE_CATEGORIES.map(t=>({v:t.id,label:t.label}))});
+  sTreasure+=buildRow("Item Type","mitype",{items:MAGIC_ITEM_TYPES.map(t=>({v:t.id,label:t.label}))});
+  sTreasure+=buildRow("Coins","tcoin",{items:COIN_TIERS.map((t,i)=>({v:String(i),label:t.id+" "+t.avg}))});
+  sTreasure+=buildRow("Riches","triches",{items:RICHES_TIERS.map((t,i)=>({v:String(i),label:t.id}))});
+  sTreasure+=buildRow("Magic","tmagic",{items:MAGIC_TIERS.map((t,i)=>({v:String(i),label:t.id}))});
+  html+=buildSection("Treasure","treasure",sTreasure,true);
   
   // SECTION 2: Appearance
   let s2="";
@@ -1987,15 +2052,43 @@ function bldShowSection(id,show){
   if(sec) sec.style.display=show?"":"none";
 }
 
+const _bldTypeInited={};
 function bldCascadeType(){
   const t=bldVal("type");
+  // Save current animal state before switching
+  const prevType=window._bldPrevType||"";
+  if(["Hound","Mount"].includes(prevType)){
+    _bldTypeInited[prevType+"_state"]={
+      breed:bldVal("breed"),name:bldVal("name"),
+      hp:bldVal("hp"),trait:bldVal("animaltrait")
+    };
+  }
+  window._bldPrevType=t;
   // Sync top bar select
   const topSel=document.getElementById("bld-type-top");
   if(topSel&&topSel.value!==t) topSel.value=t;
   const isNPC=["Adventurer","Townsfolk","Specialist"].includes(t);
+  const isTreasureType=t==="Treasure Hoard"||t==="Treasure Map"||t==="Magic Item"||t==="Trade Goods";
   const isAnimal=["Hound","Mount"].includes(t);
   
-  bldShowRow("kindred",isNPC);
+  // Hide everything for Treasure type, show treasure rows
+  if(isTreasureType){
+    ["kindred","class","specrole","wage","breed","surname","age","saves","name","hp"].forEach(r=>bldShowRow(r,false));
+    ["appearance","gear","personality","trait","reaction"].forEach(s=>bldShowSection(s,false));
+  }
+  bldShowSection("treasure",isTreasureType);
+  if(isTreasureType){
+    const isMap=t==="Treasure Map";
+    bldShowRow("tmap",isMap);
+    const isMI=t==="Magic Item";
+    const isTG=t==="Trade Goods";
+    bldShowRow("tgcat",isTG);
+    bldShowRow("mitype",isMI);
+    bldShowRow("tcoin",!isMap&&!isMI&&!isTG);
+    bldShowRow("triches",!isMap&&!isMI&&!isTG);
+    bldShowRow("tmagic",!isMap&&!isMI&&!isTG);
+  }
+  bldShowRow("kindred",isNPC&&!isTreasureType);
   bldShowRow("class",t==="Adventurer");
   bldShowRow("specrole",t==="Specialist");
   bldShowRow("wage",t==="Specialist");
@@ -2004,6 +2097,7 @@ function bldCascadeType(){
   bldShowRow("age",isNPC);
   bldShowRow("saves",t==="Adventurer");
   
+  bldShowSection("identity",!isTreasureType);
   bldShowSection("appearance",isNPC);
   bldShowSection("gear",t==="Adventurer");
   bldShowSection("personality",isNPC);
@@ -2011,20 +2105,32 @@ function bldCascadeType(){
   bldShowSection("reaction",["Adventurer","Townsfolk"].includes(t));
   
   if(isAnimal){
+    // Always repopulate breed list (Hound vs Mount use different lists)
     const breeds=t==="Hound"?HOUND_BREEDS:MOUNT_BREEDS;
     populateSelect("breed",breeds.map(b=>({v:b.id,label:b.name+" ("+b.price+")"})));
-    // Name pool for animals
     const namePool=t==="Hound"?NAMES.Cobbin:NAMES.Human;
-    populateSelect("name",namePool);
-    bldShowRow("hp",true);
-    bldShowRow("name",true);
-    // Update trait list
     const traitList=t==="Hound"?HOUND_TRAITS:MOUNT_TRAITS;
     populateSelect("animaltrait",traitList);
-    bldCascadeBreed();
+    bldShowRow("hp",true);bldShowRow("name",true);
+    if(!_bldTypeInited[t]){
+      // First visit: randomize everything
+      populateSelect("name",namePool);
+      const breedEl=bldEl("breed");
+      if(breedEl&&breedEl.options.length>0) breedEl.selectedIndex=Math.floor(Math.random()*breedEl.options.length);
+      bldCascadeBreed();_bldTypeInited[t]=true;
+    } else {
+      // Return visit: restore saved state
+      const saved=_bldTypeInited[t+"_state"];
+      if(saved){
+        const breedEl=bldEl("breed");if(breedEl) breedEl.value=saved.breed;
+        const nameEl=bldEl("name");if(nameEl) nameEl.value=saved.name;
+        const hpEl=bldEl("hp");if(hpEl) hpEl.value=saved.hp;
+        const traitEl=bldEl("animaltrait");if(traitEl) traitEl.value=saved.trait;
+      }
+    }
   }
-  if(isNPC) bldCascadeKindred();
-  if(t==="Specialist") bldCascadeSpecRole();
+  if(isNPC && !_bldTypeInited[t]){bldCascadeKindred();_bldTypeInited[t]=true;}
+  if(t==="Specialist" && !_bldTypeInited[t]) bldCascadeSpecRole();
 }
 
 function bldCascadeKindred(){
@@ -2198,7 +2304,57 @@ function bldUpdateReactionText(){
 }
 
 // ===== ROLL FUNCTIONS =====
+
 function bldRoll(field){
+  // Trade Goods reroll
+  if(field==="tgcat"){
+    const tgEl=bldEl(field);if(!tgEl) return;
+    if(window._treasureRollAll){const opts=tgEl.options;tgEl.selectedIndex=Math.floor(Math.random()*opts.length);}
+    window._tradeGoodsResult={cat:tgEl.value,items:genTradeGoods(tgEl.value)};
+    bldUpdatePreview();return;
+  }
+  // Magic Item reroll
+  if(field==="mitype"){
+    const miEl=bldEl(field);if(!miEl) return;
+    if(window._treasureRollAll){
+      const tw=MAGIC_ITEM_TYPES.reduce((s,t)=>s+t.w,0);let rr=Math.random()*tw;
+      for(let ii=0;ii<MAGIC_ITEM_TYPES.length;ii++){rr-=MAGIC_ITEM_TYPES[ii].w;if(rr<=0){miEl.selectedIndex=ii;break;}}
+    }
+    window._magicItemResult=genMagicItemByType(miEl.value);
+    bldUpdatePreview();return;
+  }
+  // Treasure map reroll: re-generate the map result
+  if(field==="tmap"){
+    const el=bldEl(field);
+    if(!el) return;
+    if(window._treasureRollAll){
+      const opts=el.options;
+      if(opts.length>0) el.selectedIndex=Math.floor(Math.random()*opts.length);
+    }
+    const idx=parseInt(el.value)||0;
+    window._treasureMapResult=genTreasureMap(idx);
+    bldUpdatePreview();
+    return;
+  }
+  // Treasure tier reroll: re-generate output for that tier only
+  if(field==="tcoin"||field==="triches"||field==="tmagic"){
+    const el=bldEl(field);
+    if(!el) return;
+    // If Roll All is calling, randomize the tier selection
+    if(window._treasureRollAll){
+      const opts=el.options;
+      if(opts.length>0) el.selectedIndex=Math.floor(Math.random()*opts.length);
+    }
+    // Regenerate that tier's output (same tier, new rolls)
+    const tr=window._treasureResult||(window._treasureResult={});
+    const idx=parseInt(el.value)||0;
+    if(field==="tcoin"){tr.coins=genTreasureCoins(idx);tr._coinTier=idx;}
+    else if(field==="triches"){tr.riches=genTreasureRiches(idx);tr._richesTier=idx;}
+    else if(field==="tmagic"){tr.magic=genTreasureMagic(idx);tr._magicTier=idx;}
+    window._treasureRolled=true;
+    bldUpdatePreview();
+    return;
+  }
   const el=bldEl(field);if(!el) return;
   
   if(field==="type"){
@@ -2246,6 +2402,7 @@ function bldRoll(field){
 }
 
 function bldRollAll(){
+  delete _bldTypeInited[bldVal("type")];
   // Roll type first (but default to Adventurer for useful output)
   const typeEl=bldEl("type");
   if(!typeEl.value) typeEl.value="Adventurer";
@@ -2270,13 +2427,71 @@ function bldRollAll(){
     if(row&&!row.classList.contains("hidden-row")) bldRoll(f);
   });
   
+    if(t==="Trade Goods"){
+    window._treasureRollAll=true;bldRoll("tgcat");window._treasureRollAll=false;bldUpdatePreview();return;
+  }
+  if(t==="Magic Item"){
+    window._treasureRollAll=true;bldRoll("mitype");window._treasureRollAll=false;bldUpdatePreview();return;
+  }
+  if(t==="Treasure Map"){
+    window._treasureRollAll=true;bldRoll("tmap");window._treasureRollAll=false;bldUpdatePreview();return;
+  }
+  if(t==="Treasure Hoard"){
+    window._treasureRolled=true;
+    window._treasureRollAll=true;bldRoll("tcoin");bldRoll("triches");bldRoll("tmagic");window._treasureRollAll=false;bldUpdatePreview();return;
+  }
   bldCascadeReaction();
   bldUpdatePreview();
 }
 
 // ===== PREVIEW =====
+
+
 function bldBuildText(){
   const t=bldVal("type");
+  if(t==="Treasure Map"){
+    try{
+      const tmapIdx=parseInt(bldVal("tmap"))||0;
+      const tmr=window._treasureMapResult||(window._treasureMapResult=genTreasureMap(tmapIdx));
+      if(tmr.idx!==tmapIdx){window._treasureMapResult=genTreasureMap(tmapIdx);const tmr2=window._treasureMapResult;return {name:"Treasure Map Hoard",html:tmr2.html,type:"treasure"};}
+      return {name:"Treasure Map Hoard",html:tmr.html,type:"treasure"};
+    }catch(e){return {name:"Treasure Map",html:'<div class="npc-card"><b>Error:</b> '+e.message+'</div>',type:"treasure"};}
+  }
+    if(t==="Trade Goods"){
+    try{
+      const cat=bldVal("tgcat")||"mundane";
+      if(!window._tradeGoodsResult||window._tradeGoodsResult.cat!==cat) window._tradeGoodsResult={cat:cat,items:genTradeGoods(cat)};
+      const tg=window._tradeGoodsResult;
+      const catLabel=TRADE_CATEGORIES.find(x=>x.id===tg.cat);
+      const label=(catLabel?catLabel.label:"")+" Trade Goods";
+      const list=tg.items.map((m,i)=>"<b>"+(i+1)+".</b> "+m).join("<br>");
+      return {name:label,html:'<div class="npc-card"><b>'+label+'</b><br><br>'+list+'</div>',type:"trade-goods"};
+    }catch(e){return {name:"Trade Goods",html:'<div class="npc-card"><b>Error:</b> '+e.message+'</div>',type:"trade-goods"};}
+  }
+if(t==="Magic Item"){
+    try{
+      const _miType=bldVal("mitype")||"amulet";
+      if(!window._magicItemResult||window._magicItemResult.type!==_miType) window._magicItemResult=genMagicItemByType(_miType);
+      const mi=window._magicItemResult;
+      const rendered=mi.render();
+      const tl=MAGIC_ITEM_TYPES.find(x=>x.id===mi.type);
+      const label=tl?tl.label.split(": ")[1]:"Magic Item";
+      return {name:label,html:'<div class="npc-card"><b>'+label+'</b><br><br>'+rendered+'</div>',type:"magic-item"};
+    }catch(e){return {name:"Magic Item",html:'<div class="npc-card"><b>Error:</b> '+e.message+'</div>',type:"magic-item"};}
+  }
+  if(t==="Treasure Hoard"){
+    try{
+      const tr=window._treasureResult||(window._treasureResult={});
+      const coinIdx=parseInt(bldVal("tcoin"))||0;
+      const richesIdx=parseInt(bldVal("triches"))||0;
+      const magicIdx=parseInt(bldVal("tmagic"))||0;
+      if(!tr.coins||tr._coinTier!==coinIdx){tr.coins=genTreasureCoins(coinIdx);tr._coinTier=coinIdx;}
+      if(!tr.riches||tr._richesTier!==richesIdx){tr.riches=genTreasureRiches(richesIdx);tr._richesTier=richesIdx;}
+      if(!tr.magic||tr._magicTier!==magicIdx){tr.magic=genTreasureMagic(magicIdx);tr._magicTier=magicIdx;}
+      const html=`<div class="npc-card"><b>Treasure Hoard (${tr.coins.tier} / ${tr.riches.tier} / ${tr.magic.tier})</b><br><br><b>Coins:</b> ${tr.coins.text}${tr.coins.hasCoins?"<br><i>Coins show: "+tr.coins.face+"</i>":""}<br><br><b>Riches:</b><br>${tr.riches.text}<br><br><b>Magic Items:</b><br>${tr.magic.text}</div>`;
+      return {name:"Treasure Hoard ("+tr.coins.tier+"/"+tr.riches.tier+"/"+tr.magic.tier+")",html:html,type:"treasure"};
+    }catch(e){return {name:"Treasure",html:'<div class="npc-card"><b>Error generating treasure:</b> '+e.message+'</div>',type:"treasure"};}
+  }
   if(t==="Hound"||t==="Mount"){
     const breedId=bldVal("breed");
     const breeds=t==="Hound"?HOUND_BREEDS:MOUNT_BREEDS;
@@ -2393,8 +2608,8 @@ function bldSave(){
   const data=bldBuildText();
   _pendingSaveName=data.name;
   _pendingSaveText=htmlToSavedText(data.html);
-  _pendingSaveType=data.type;
-  showSaveModal();
+  _pendingSaveType=data.type==="treasure"?"hoard":data.type;
+  showSaveModal(_pendingSaveType==="hoard"||_pendingSaveType==="magic-item"||_pendingSaveType==="trade-goods");
 }
 
 // ===== FIREBASE REALTIME DATABASE SYNC =====
@@ -2412,8 +2627,24 @@ function saveFbSettings(){
 }
 
 function updateSyncBtn(){
-  const btn=document.getElementById("sync-btn");
-  if(btn) btn.style.display=getFbUrl()?"":"none";
+  const wrap=document.getElementById("sync-wrap");
+  if(wrap) wrap.style.display=getFbUrl()?"inline-flex":"none";
+}
+function updateSyncDot(){
+  const dot=document.getElementById("sync-dot");
+  if(dot) dot.style.display=(_localDirty&&getFbUrl())?"":"none";
+}
+function toggleSyncMenu(e){
+  if(e) e.stopPropagation();
+  const menu=document.getElementById("sync-menu");
+  if(!menu) return;
+  const show=menu.style.display==="none";
+  menu.style.display=show?"":"none";
+  if(show){setTimeout(()=>document.addEventListener("click",closeSyncMenu,{once:true}),0);}
+}
+function closeSyncMenu(){
+  const menu=document.getElementById("sync-menu");
+  if(menu) menu.style.display="none";
 }
 
 function testFbConnection(){
@@ -2474,18 +2705,67 @@ async function fbPush(){
   }
 }
 
-async function fbSync(){
-  const btn=document.getElementById("sync-btn");
-  btn.classList.add("sync-spinning");
-  
-  // Pull from Firebase (source of truth), then push local back
-  await fbPull();
-  await fbPush();
-  
+async function fbMerge(){
+  const url=getFbUrl();if(!url) return;
+  const btn=document.getElementById("sync-btn");btn.classList.add("sync-spinning");
+  try{
+    const r=await fetch(url+"/npcs.json");
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const remote=await r.json();
+    const local=loadSaved();
+    const merged={locations:{}};
+    const allLocs=new Set([...Object.keys(local.locations||{}),...Object.keys((remote&&remote.locations)||{})]);
+    for(const loc of allLocs){
+      const le=(local.locations&&local.locations[loc]&&local.locations[loc].entries)||[];
+      const re=(remote&&remote.locations&&remote.locations[loc]&&remote.locations[loc].entries)||[];
+      const byId={};
+      le.forEach(e=>byId[e.id]=e);
+      re.forEach(e=>{if(!byId[e.id]) byId[e.id]=e;});
+      merged.locations[loc]={entries:Object.values(byId)};
+    }
+    storeSavedLocal(merged);
+    await fbPush();
+    _localDirty=false;updateSyncDot();renderSavedTab();
+    syncFlash("Synced \u2713");
+  }catch(err){console.error("Merge failed:",err);syncFlash("Sync failed","err");}
   btn.classList.remove("sync-spinning");
-  // Re-render roster if on that tab
-  const activeTab=document.querySelector(".tab-content.active");
-  if(activeTab&&activeTab.id==="tab-saved") renderSavedTab();
+}
+
+function fbOverrideLocal(){
+  closeSyncMenu();
+  const m=document.createElement("div");m.className="modal-backdrop";
+  m.innerHTML='<div class="modal-panel"><h3>Override My Roster</h3><p style="margin-bottom:var(--sp-3);color:var(--fg-soft)">Replace your local roster with the cloud? Any local-only entries will be lost.</p><div class="modal-buttons"><button class="modal-btn modal-btn-ghost" onclick="this.closest(\'.modal-backdrop\').remove()">Cancel</button><button class="modal-btn modal-btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="doOverrideLocal(this)">Override My Roster</button></div></div>';
+  m.addEventListener("click",e=>{if(e.target===m)m.remove();});
+  document.getElementById("modal-root").appendChild(m);
+}
+async function doOverrideLocal(btn){
+  btn.closest(".modal-backdrop").remove();
+  const sb=document.getElementById("sync-btn");sb.classList.add("sync-spinning");
+  try{await fbPull();_localDirty=false;updateSyncDot();renderSavedTab();syncFlash("Downloaded \u2713");}
+  catch(err){syncFlash("Failed","err");}
+  sb.classList.remove("sync-spinning");
+}
+
+function fbOverrideCloud(){
+  closeSyncMenu();
+  const m=document.createElement("div");m.className="modal-backdrop";
+  m.innerHTML='<div class="modal-panel"><h3>Override the Cloud</h3><p style="margin-bottom:var(--sp-3);color:var(--fg-soft)">Replace cloud data with your local roster? Any cloud-only entries will be lost.</p><div class="modal-buttons"><button class="modal-btn modal-btn-ghost" onclick="this.closest(\'.modal-backdrop\').remove()">Cancel</button><button class="modal-btn modal-btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="doOverrideCloud(this)">Override the Cloud</button></div></div>';
+  m.addEventListener("click",e=>{if(e.target===m)m.remove();});
+  document.getElementById("modal-root").appendChild(m);
+}
+async function doOverrideCloud(btn){
+  btn.closest(".modal-backdrop").remove();
+  const sb=document.getElementById("sync-btn");sb.classList.add("sync-spinning");
+  try{await fbPush();_localDirty=false;updateSyncDot();syncFlash("Uploaded \u2713");}
+  catch(err){syncFlash("Failed","err");}
+  sb.classList.remove("sync-spinning");
+}
+
+function syncFlash(msg,type){
+  const wrap=document.getElementById("sync-wrap");if(!wrap) return;
+  const f=document.createElement("span");f.textContent=msg;
+  f.style.cssText="position:absolute;top:100%;right:0;margin-top:4px;padding:2px 8px;border-radius:var(--r-sm);font-size:var(--fs-xs);font-family:var(--font-body);white-space:nowrap;z-index:101;"+(type==="err"?"background:var(--danger);color:#fff":"background:var(--accent);color:#fff");
+  wrap.appendChild(f);setTimeout(()=>f.remove(),2000);
 }
 
 // Separate local-only storage (no sync trigger) to avoid infinite loops
@@ -2493,24 +2773,18 @@ function storeSavedLocal(data){
   localStorage.setItem(LS_KEY,JSON.stringify(data));
 }
 
-// Override storeSaved to auto-push to Firebase
+// Manual sync only - no auto-push
+let _localDirty=false;
 const _origStoreSaved=storeSaved;
 storeSaved=function(data){
   _origStoreSaved(data);
-  if(getFbUrl()) fbPush(); // fire-and-forget
+  _localDirty=true;
+  updateSyncDot();
 };
 
-// On page load: show sync button, auto-pull if configured
+// On page load: show sync button
 (function(){
   updateSyncBtn();
-  if(getFbUrl()){
-    fbPull().then(ok=>{
-      if(ok){
-        const activeTab=document.querySelector(".tab-content.active");
-        if(activeTab&&activeTab.id==="tab-saved") renderSavedTab();
-      }
-    });
-  }
 })();
 
 // ===== REROLL SINGLE CARD =====
@@ -2530,6 +2804,20 @@ function rerollCard(btn){
   }
   else if(type==="hound") newHtml=genSingleHound();
   else if(type==="mount") newHtml=genSingleMount();
+  else if(type==="treasure"){
+    const card_el=card.closest("[data-card-id]")||card;
+    const isTmap=card_el.innerHTML&&card_el.innerHTML.includes("Treasure Map Hoard");
+    if(isTmap){
+      const tmIdx=Math.floor(Math.random()*TMAP_TABLE.length);
+      const tmr=genTreasureMap(tmIdx);
+      newHtml=cardActions(tmr.html,"treasure");
+    } else {
+      const coinIdx=Math.floor(Math.random()*12);
+      const richesIdx=Math.floor(Math.random()*12);
+      const magicIdx=Math.floor(Math.random()*12);
+      newHtml=cardActions(genTreasure(coinIdx,richesIdx,magicIdx),"treasure");
+    }
+  }
   else return;
   
   // Parse the new HTML and replace the card
@@ -2571,6 +2859,429 @@ function genSingleMount(){
   const name=pick(NAMES.Human);
   return cardActions(`<div class="animal-card"><b>${name} the ${t.name}</b> (${t.price}) <b>HP:</b> ${hp}<br><i>~ ${t.desc} ~</i><br>${t.ability}<br><b>Trait:</b> They ${pick(MOUNT_TRAITS)}.</div>`,"mount");
 }
+
+// ===== TREASURE GENERATOR DATA =====
+
+const COIN_TIERS=[
+{id:"C1",avg:"~25gp",slots:[{pct:0.25,dice:"1d4",mult:1000,unit:"cp"},{pct:0.10,dice:"1d3",mult:1000,unit:"sp"}]},
+{id:"C2",avg:"~180gp",slots:[{pct:0.5,dice:"1d8",mult:1000,unit:"cp"},{pct:0.35,dice:"1d8",mult:1000,unit:"sp"}]},
+{id:"C3",avg:"~200gp",slots:[{pct:0.5,dice:"1d12",mult:1000,unit:"cp"},{pct:0.4,dice:"1d8",mult:1000,unit:"sp"}]},
+{id:"C4",avg:"~900gp",slots:[{pct:0.4,dice:"1d8",mult:1000,unit:"cp"},{pct:0.3,dice:"1d6",mult:1000,unit:"sp"},{pct:0.4,dice:"1d3",mult:1000,unit:"gp"}]},
+{id:"C5",avg:"~1,600gp",slots:[{pct:0.45,dice:"1d10",mult:1000,unit:"cp"},{pct:0.4,dice:"1d12",mult:1000,unit:"sp"},{pct:0.3,dice:"1d8",mult:1000,unit:"gp"}]},
+{id:"C6",avg:"~2,200gp",slots:[{pct:0.1,dice:"1d8",mult:1000,unit:"cp"},{pct:0.15,dice:"1d12",mult:1000,unit:"sp"},{pct:0.6,dice:"1d6",mult:1000,unit:"gp"}]},
+{id:"C7",avg:"~4,700gp",slots:[{pct:0.1,dice:"1d6",mult:1000,unit:"cp"},{pct:0.4,dice:"2d8",mult:1000,unit:"sp"},{pct:0.35,dice:"2d6",mult:1000,unit:"gp"},{pct:0.25,dice:"1d2",mult:1000,unit:"pp"}]},
+{id:"C8",avg:"~6,500gp",slots:[{pct:0.5,dice:"2d10",mult:1000,unit:"sp"},{pct:0.45,dice:"1d12",mult:1000,unit:"gp"},{pct:0.3,dice:"1d3",mult:1000,unit:"pp"}]},
+{id:"C9",avg:"~6,750gp",slots:[{pct:0.3,dice:"1d8",mult:1000,unit:"pp"}]},
+{id:"C10",avg:"~21,000gp",slots:[{pct:0.5,dice:"1d4",mult:10000,unit:"gp"},{pct:0.5,dice:"1d6",mult:1000,unit:"pp"}]},
+{id:"C11",avg:"~42,000gp",slots:[{pct:0.25,dice:"3d8",mult:1000,unit:"cp"},{pct:0.75,dice:"1d100",mult:1000,unit:"sp"},{pct:0.5,dice:"1d8",mult:10000,unit:"gp"},{pct:0.25,dice:"5d4",mult:1000,unit:"pp"}]},
+{id:"C12",avg:"~46,000gp",slots:[{pct:0.4,dice:"2d4",mult:1000,unit:"gp"},{pct:0.5,dice:"5d6",mult:1000,unit:"pp"}]}];
+
+const COIN_HEADS=["Baron Hogwarsh","Duke Argibald IV","Duke Thespian III","Lady Harrowmoor","Lady Mulbreck","Lord Guillefer","Lord Malbleat","Lord Murkin","Lord Nodlock","Lord Ramius"];
+const COIN_TAILS=["Acorn","Chapes","Coat of Arms","Cockatrice","Green Man","Griffon","Hop Leaf","Tankard","Unicorn","Wyrm"];
+
+const GEMS_BY_TIER={
+Ornamental:{gp:10,items:["Azurite","Banded agate","Clear quartz","Eye agate","Hematite","Lapis lazuli","Malachite","Moss agate","Obsidian","Rhodochrosite","Tiger eye","Turquoise"]},
+Semiprecious:{gp:50,items:["Amber with trapped insect","Aquamarine","Beryl","Blue spinel","Chrysolite","Diamond","Pearl","Peridot","Red spinel","Scintillant ioun","Topaz","Violet garnet"]},
+Fancy:{gp:100,items:["Bloodstone","Carnelian","Chalcedony","Chrysoprase","Citrine","Jasper","Moonstone","Onyx","Rose quartz","Sardonyx","Smoky quartz","Zircon"]},
+Precious:{gp:500,items:["Amber","Amethyst","Ametrine","Chrysoberyl","Coral","Grey ioun","Jade","Jet","Kunzite","Red garnet","Tourmaline","Violet spinel"]},
+Gemstone:{gp:1000,items:["Black opal","Black pearl","Black sapphire","Blue diamond","Fire opal","Star ruby","Star sapphire","Emerald","Jacinth","Opal","Ruby","Sapphire"]}
+};
+const GEM_WEIGHTS=[{tier:"Ornamental",w:20},{tier:"Semiprecious",w:25},{tier:"Fancy",w:30},{tier:"Precious",w:20},{tier:"Gemstone",w:5}];
+
+const ART_MATERIALS=["Alabaster","Jade","Amber","Meteoric iron","Brass","Obsidian","Bronze","Pellucidium","Copper","Platinum","Coral","Porcelain","Crystal","Rare wood","Electrum","Silver","Gold","Unicorn horn","Ivory","Wyrmskin"];
+const ART_JEWELRY=["Anklet","Diadem","Armlet","Earrings (pair)","Bracelet","Hairpin","Brooch","Locket","Buckle","Medallion","Choker","Necklace","Circlet","Pendant","Coronet","Ring","Crown","Tiara"];
+const ART_MISC=["Ceremonial armour","Jewellery box","Astrolabe","Mirror","Bell","Musical instrument","Book","Orb","Bowl","Landscape painting","Candelabra","Portrait painting","Chalice","Triptych painting","Chandelier","Perfume","Clock","Porcelain","Comb","Pottery","Cutlery","Reliquary","Decanter","Rug","Drinking horn","Sceptre","Engraving","Ceremonial shield","Furniture","Silks","Furs","Spices","Game set","Statuette","Glassware","Tapestry","Gong","Taxidermy","Ceremonial helm","Tray","Hunting horn","Vase","Incense","Ceremonial weapon","Ivory carving","Wine"];
+const ART_EMBELLISH=["Adorned with feathers","Hammered","Beaded","Heraldry","Bejewelled","Inlaid with mirror","Enamelled","Inlaid with precious metal","Engraved with patterns","Inlaid with shells","Engraved with unicorns","Inlaid with unicorn horn","Engraved with words","Intricately carved","Filigreed","Lacquered","Fur-trimmed","Pearl-studded","Gilded","Studded"];
+const ART_PROVENANCE=["another world","House Mulbreck","beyond Dolmenwood","House Murkin","the Drune","House Nodlock","the Frost Elves","House Ramius","the Cold Prince","a lesser noble","House Brackenwold","a mossling","House Guillefer","the Pluritine Church","House Harrowmoor","a saint","House Hogwarsh","the Table Downs","House Malbleat","the Witches"];
+
+const RICHES_TIERS=[
+{id:"R1",gemPct:0.5,gemDice:"1d4",artPct:0,artDice:"0"},
+{id:"R2",gemPct:0.1,gemDice:"1d10",artPct:0.1,artDice:"1d10"},
+{id:"R3",gemPct:0.25,gemDice:"1d4",artPct:0.25,artDice:"1d4"},
+{id:"R4",gemPct:0.25,gemDice:"1d6",artPct:0.25,artDice:"1d6"},
+{id:"R5",gemPct:0.2,gemDice:"2d12",artPct:0.1,artDice:"1d12"},
+{id:"R6",gemPct:0,gemDice:"0",artPct:0.5,artDice:"1d4"},
+{id:"R7",gemPct:0.3,gemDice:"1d8",artPct:0.3,artDice:"1d8"},
+{id:"R8",gemPct:0.25,gemDice:"3d6",artPct:0.25,artDice:"1d10"},
+{id:"R9",gemPct:0.5,gemDice:"2d6",artPct:0.5,artDice:"2d6"},
+{id:"R10",gemPct:0.55,gemDice:"5d4",artPct:0.45,artDice:"2d6"},
+{id:"R11",gemPct:0.5,gemDice:"6d6",artPct:0.5,artDice:"6d6"},
+{id:"R12",gemPct:0.5,gemDice:"1d100",artPct:0.5,artDice:"1d4*10"}
+];
+
+const MAGIC_GARMENTS=["Belt of Blending (8,000gp) — blend into a crowd without being remembered","Belt of Hounds (10,000gp) — conjure 8 different hounds","Belt of Might (10,000gp) — gain 18 Strength; lessens encumbrance","Boggin-Hair Cloak (5,000gp) — transforms into a small boat","Boots of Andromethia (6,000gp) — leave a trail of petals; lessens chance of getting lost","Boots of the Plains (20,000gp) — move at Speed 80 for up to 1 day","Boots of Weft-Striding (15,000gp) — step up to 30' away; float in mid-air","Cloak of Displacement (17,500gp) — wearer appears 5' away; +2 vs targeted attacks","Cloak of Leaves (15,000gp) — different bonus each season","Cobweb Socks (10,000gp) — walk along walls and ceilings","Hearty Companion Cloak (8,000gp) — sleep in any conditions; must be fed 1 ration","Helm of Teleportation (20,000gp) — cast Teleport once a day","Lichen Cloak (8,000gp) — blend into trees or rock","Mushroom Cap (5,000gp) — produces edible and sometimes special fungi","Pickpocket's Glove (12,500gp) — objects touched are invisible while in contact","Robe of Eyes (50,000gp) — all-round vision, see in darkness, see invisible","Robe of Useful Items (15,000gp) — patches can be removed to produce items","Scholar's Cap (12,500gp) — read any language","Sprite-Wing Cloak (6,000gp) — near invisibility when moving slowly","Helm of Realignment (1,000gp) — cursed; changes Alignment"];
+
+const MAGIC_CRYSTALS=["Crystal Ball (5,000gp) — view a distant location","Crystal of Sepulture (5,000gp) — absorbs souls to power enchantments","Dweomer Shard (20,000gp) — absorbs magical energy, releases as spell","Ioun Stone, Absorption (20,000gp) — absorbs and negates spells","Ioun Stone, Agility (5,000gp) — +1 Dexterity","Ioun Stone, Breath (5,000gp) — sustains without air","Ioun Stone, Fortitude (5,000gp) — +1 Constitution","Ioun Stone, Insight (5,000gp) — +1 Wisdom","Ioun Stone, Intellect (5,000gp) — +1 Intelligence","Ioun Stone, Might (5,000gp) — +1 Strength","Ioun Stone, Presence (5,000gp) — +1 Charisma","Ioun Stone, Regeneration (20,000gp) — heal 1 HP per Turn","Ioun Stone, Sustenance (5,000gp) — sustains without food and water","Lenses of Reflection (5,000gp) — immunity to gaze attacks","Lenses of Sight (3,000gp) — look into one lens, see through the other","Lens of Penetration (3,000gp) — sees through fairy glamours","Leystone (3,000gp) — detects ley lines and nodal stones","Loadstone (1,000gp) — cursed; slows movement","Luckstone (25,000gp) — +1 to Saving Throws and Ability Checks","Moonstone (1,000gp) — absorbs moonlight, emits light for 1 month"];
+
+const MAGIC_RINGS=["Ring of Amphibious Breath (5,000gp) — breathe in air and underwater","Ring of Animal Affinity (7,500gp) — speak with and transform into one kind of animal","Ring of Charming (10,000gp) — charm one kind of sentient creature","Ring of Control (5,000gp) — control one kind of non-sentient creature","Ring of Delusion (2,000gp) — cursed; effects of another ring until a critical juncture","Ring of Duomorph (5,000gp) — change into an opposite-sex form","Ring of Encystment (10,000gp) — store objects within solid rock","Ring of Energy Resistance (5,000gp) — resistance to one kind of energy","Ring of Enfeeblement (1,000gp) — cursed; Strength reduced to 3","Ring of Feather Falling (5,000gp) — float like a feather; unharmed by falling","Ring of Jumping (5,000gp) — jump up to 30' horizontally, 10' vertically","Ring of Invisibility (7,500gp) — grants invisibility","Ring of Mortality (8,000gp) — treated as mortal; cannot use glamours","Ring of Protection (10,000gp) — +1 bonus to AC and Saving Throws","Ring of Regeneration (40,000gp) — heal 1 HP per Round","Ring of Selective Invisibility (5,000gp) — invisible to one kind of creature","Ring of Vanishing (10,000gp) — short range teleport plus invisibility","Ring of Vision (35,000gp) — see through solid objects","Ring of Water Walking (5,000gp) — walk on the surface of water","Ring of Wishes (15,000gp) — grants three wishes"];
+
+const MAGIC_POTIONS=["Aethers of Starlight (2,000gp) — see magic and invisible","Alchemical Tonic (250gp) — rouses unconsciousness; grants save vs paralysis","Amber Nectar (200gp) — heals 1d4 HP; chance of drifting to sleep","Bottled Light (200gp) — emits light when unstoppered","Distillation of Hoarfrost (2,000gp) — resistance to heat and fire","Elixir of Mutability (2,000gp) — polymorph into chosen creature","Essence of Springtime (8,000gp) — rejuvenates mortals; poisonous to fairies","Essence of Sweet Dreams (250gp) — bonus to saves or deep restful sleep","Liquid Time (3,000gp) — double Speed and actions; causes ageing","Orgon's Scintillating Philtre (500gp) — heals 1d6 HP","Philtre of Delusion (150gp) — cursed","Philtre of Doom (500gp) — cursed; deadly poison","Philtre of the Winds (3,000gp) — grants flight","Philtre of Wondrous Vitality (1,000gp) — revives recently slain","Prismatic Elixir (1,000gp) — heals 1d6+1 HP","Sandor's Phantasmal Elixir (3,000gp) — spiritual journeying","Vanishing Philtre (2,000gp) — grants invisibility","Vaporous Spirits (3,000gp) — turn into vapour","Wereform Elixir (750gp) — polymorph into specific animal","Wyrmsblood Elixir (1,000gp) — +2 AC and Saving Throw bonus"];
+
+const MAGIC_WONDROUS=["Astrolabe of the Aegis (50,000gp) — travel along ley lines","Bag of Devouring (1,500gp) — cursed; objects placed inside disappear","Bag of Holding (25,000gp) — magically stores large objects","Boggle Lantern (35,000gp) — summon marsh lanterns","Eye of the Yurl (20,000gp) — replaces eye; dark vision, see through cloth and wood","Fairy Jar (15,000gp) — trapped fairy spirit can cast fairy runes","Horseshoes of Lightness (7,500gp) — steed floats above ground","Horseshoes of Speed (10,000gp) — double steed Speed","Knife of Separation (15,000gp) — harmlessly separate and reattach body parts","Leaf Dome (10,000gp) — conjures protective canopy","Marvellous Pigments (3,000gp) — painted objects become real","Mirror of Life Trapping (25,000gp) — traps living creatures","Mirror of Youthfulness (15,000gp) — bestows youthful appearance","Needles of Hexing (15,000gp) — place curses by embroidering a likeness","Petrified Fairy Heart (18,000gp) — +1 save vs fairy magic; powder rejuvenates","Portable Hole (50,000gp) — extra-dimensional hole in a surface","Purse of Plentiful Coin (25,000gp) — duplicates coins placed inside","Rope of Climbing (10,000gp) — climbs and attaches on command","Skeleton Key (1,000gp) — opens any lock","Sylvan Bracelet (5,000gp) — speak Sylvan or speak with plants"];
+
+const MAGIC_WEAPONS=["Arrows","Battle axe","Club","Crossbow","Dagger","Hand axe","Lance","Longbow","Longsword","Mace","Polearm","Quarrels","Shortbow","Shortsword","Sling","Sling stones","Spear","Staff","Two-handed sword","War hammer"];
+const MAGIC_ARMOR=["Leather armour","Leather armour + shield","Bark armour","Bark armour + shield","Chainmail","Chainmail + shield","Pinecone armour","Pinecone armour + shield","Plate mail","Plate mail + shield","Full plate","Full plate + shield","Shield"];
+const ENCHANT_SCHOOLS=["Arcane","Fairy","Holy"];
+const ENCHANT_SPECIAL={Arcane:["Accelerating","Disintegrating","Dragon bane","Flaming","Flying","Frost-rimed","Giant bane","Growing","Impact","Vampiric","Vanishing","Venger"],Fairy:["Accelerating","Elf friend","Flaming","Flying","Frost-rimed","Guileful","Law bane","Moon sight","Mortal bane","Shrinking","Vanishing","Wasting"],Holy:["Chaos bane","Defender","Eldritch bane","Fairy bane","Holy radiance","Light bringer","Marshall","Succouring","Undead bane","Venger","Were bane","Wizard bane"]};
+const ENCHANT_ODD={Arcane:["Arrogant","Bloodthirsty","Doomed (cursed)","Lying","Neutral aligned","Treacherous (cursed)","Truthful"],Fairy:["Ageing","Arrogant","Chaotic aligned","Covetous","Lying","Mirthful","Possessed (cursed)","Slumbering"],Holy:["Devoted","Hallowed","Lawful aligned","Questing (cursed)","Truthful","Unyielding"]};
+
+const AMULET_MAT=["Bone","Brass","Crystal","Flint","Gem","Gold","Ice (never melts)","Iron","Pellucidium","Platinum","Solid shadow","Wood"];
+const AMULET_SHAPE=["Bar","Diamond","Disc","Hand","Hexagon","Jagged","Octagon","Oval","Ring","Saintly Effigy","Teardrop","Twisted"];
+const AMULET_ENGRAVE=["Astrological signs","Coiled wyrm","Eye(s)","Green Man","Griffon","Leering face","Magic sigils","Magic square","Moon","Pentagram","Rune(s)","Skull and roses"];
+const AMULET_POWERS=["Amulet of Breath (5,000gp) — breathe in air and underwater","Amulet of Density (25,000gp) — transform into gaseous form or solid iron","Amulet of Lightning (7,500gp) — throw lightning bolts","Amulet of Mind-Reading (10,000gp) — read others' thoughts","Amulet of Pristine Sight (12,500gp) — see through illusions and invisible","Amulet of Refraction (10,000gp) — conjure defensive mirror images","Talisman of Defence (15,000gp) — paralyses attackers for 1d4 Rounds","Talisman of Devotion (7,000gp) — +1 AC and save vs Chaotic/summoned","Talisman of Dimensional Anchoring (4,000gp) — immunity to teleportation","Talisman of Free Action (5,000gp) — immunity to restraint and paralysis","Talisman of Magic Resistance (4,000gp) — +2 Magic Resistance","Talisman of Non-Detection (7,500gp) — immunity to detection magic","Talisman of Protection (12,000gp) — grants AC 14","Talisman of Protection From Hexes (25,000gp) — nullifies curses and death magic","Talisman of Protection From Scrying (10,000gp) — immunity to scrying","Talisman of Spell Reflection (20,000gp) — reflects spells back at caster","Talisman of Vitality (10,000gp) — +4 save vs poison and disease","Talisman of Gaze Reflection (20,000gp) — nullifies gaze attacks","Talisman of Hex Attraction (1,000gp) — cursed; -4 save vs curses","Ioun Trap (9,000gp) — protects against Ioun Shards"];
+
+const INSTRUMENT_TYPES=["Chime","Crumhorn","Doodlepipe","Flute","Frame drum","Harp","Horn","Kettle drum","Lute","Lyre","Mandolin","Panpipes","Recorder","Shawm","Squamp","Tambour","Trombone","Tuba","Viola","Violin"];
+const INSTRUMENT_MAGIC=["Animation (15,000gp)","Blasting (40,000gp)","Calling (5,000gp)","Chaos (10,000gp)","Cooking (8,000gp)","Dance of the Dead (15,000gp)","Enraging (3,000gp)","Entanglement (10,000gp)","Fascination (8,000gp)","Frothing (2,000gp)","Jackanapes (12,000gp)","Levitation (10,000gp)","Obscurement (10,000gp)","Opening (20,000gp)","Panic (35,000gp)","Ravening (2,000gp)","Revelry (5,000gp)","Sending (10,000gp)","Slumber (10,000gp)","Warning (6,000gp)"];
+
+const SCROLL_PROTECTION=["Animals","Petrification","Bugs","Plants","Constructs","Spells","Fairies","Undead","Fungi","Werewolves","Lightning","Wyrm breath"];
+const SCROLL_CONTROL=["Animals","Bugs","Constructs","Dragons","Fairies and demi-fey","Fungi","Monstrosities","Mortals","Oozes","Plants","Undead"];
+const ARCANE_SPELLS={1:["Crystal Resonance","Decipher","Fairy Servant","Firelight","Floating Disc","Glyph of Sealing","Ignite/Extinguish","Ingratiate","Ioun Shard","Shield of Force","Vapours of Dream","Ventriloquism"],2:["Arcane Cypher","Dweomerlight","Flaming Spirit","Glyph of Locking","Invisibility","Knock","Levitate","Mind Crystal","Mirror Image","Perceive the Invisible","Phantasm","Web"],3:["Circle of Invisibility","Crystal Vision","Dark Sight","Dispel Magic","Fireball","Fly","Haste","Lightning Bolt","Missile Ward","Paralysation","Serpent Glyph","Water Breathing"],4:["Acid Globe","Arcane Eye","Confusion","Dimension Door","Dominate","Hallucinatory Terrain","Hex Weaving","Plant Growth","Polymorph","Wall of Fire","Wall of Ice","Woodland Veil"],5:["Air Sphere","Animate Dead","Cloudkill","Conjure Elemental","Fabricate","Feeblemind","Mire","Passwall","Sending","Telekinesis","Teleport","Wall of Stone"],6:["Anti-Magic Ward","Control Weather","Disintegrate","Dweomerfire","Geas","Invisible Stalker","Move Terrain","Oracle","Petrification","Project Image","Wave of Force","Word of Doom"]};
+const HOLY_SPELLS={1:["Detect Evil","Detect Magic","Frost Ward","Lesser Healing","Light","Mantle of Protection","Purify Food and Drink","Rally"],2:["Bless","Charm Serpents","Find Traps","Flame Ward","Hold Person","Reveal Alignment","Silence","Speak With Animals"],3:["Animal Growth","Bless Weapon","Cure Affliction","Holy Light","Locate Object","Remove Curse"],4:["Circle of Protection","Create Water","Greater Healing","Remove Poison","Speak With Plants","Serpent Transformation"],5:["Communion","Create Food","Holy Fire","Holy Quest","Insect Plague","Raise Dead"]};
+const TREASURE_SPELLBOOKS=["Common starting spell book (3,000gp)","Extracts From the 7th Angle: Dimension Door, Teleport, Oracle (15,000gp)","Hoylo's Visions: Perceive the Invisible, Dark Sight, Arcane Eye (9,000gp)","Metalogical Workings: Dispel Magic, Haste, Hex Weaving (10,000gp)","Oliphan's Excellent Prismatic Tome: Dweomerlight, Mind Crystal, Crystal Vision (7,000gp)","Orgon's Folio of Force: Ioun Shard, Lightning Bolt, Conjure Elemental (9,000gp)","The Book of Lies: Paralysation, Dominate, Geas (13,000gp)","The Treatise on Wishery: Invisibility, Phantasm, Hallucinatory Terrain (8,000gp)","The Violet Tome: Web, Fly, Water Breathing (8,000gp)","Vyla's Wards: Arcane Cypher, Glyph of Locking, Serpent Glyph (7,000gp)","Workings in Flame: Flaming Spirit, Fireball, Wall of Fire (9,000gp)"];
+
+const MAGIC_TIERS=[
+{id:"M1",items:[{pct:0.1,fn:"magicWeaponOrArmor"},{pct:0.9,fn:"nothing"}]},
+{id:"M2",items:[{pct:0.15,fn:"magicItemType",count:1},{pct:0.85,fn:"nothing"}]},
+{id:"M3",items:[{pct:0.1,fn:"magicItemType",count:2},{pct:0.9,fn:"nothing"}]},
+{id:"M4",items:[{pct:0.15,fn:"magicItemsAndPotion",count:2},{pct:0.85,fn:"nothing"}]},
+{id:"M5",items:[{pct:0.4,fn:"potionBatch"},{pct:0.6,fn:"nothing"}]},
+{id:"M6",items:[{pct:0.5,fn:"scrollBatch"},{pct:0.5,fn:"nothing"}]},
+{id:"M7",items:[{pct:0.15,fn:"magicItemsScrollPotion",count:4},{pct:0.85,fn:"nothing"}]},
+{id:"M8",items:[{pct:0.25,fn:"magicItemsAndScroll",count:3},{pct:0.75,fn:"nothing"}]},
+{id:"M9",items:[{pct:0.3,fn:"magicItemType",count:3},{pct:0.7,fn:"nothing"}]},
+{id:"M10",items:[{pct:0.3,fn:"magicItemsScrollPotion",count:4},{pct:0.7,fn:"nothing"}]},
+{id:"M11",items:[{pct:0.35,fn:"magicItemsAndScroll",count:4},{pct:0.65,fn:"nothing"}]},
+{id:"M12",items:[{pct:0.5,fn:"magicItemType",count:"2d4"},{pct:0.5,fn:"nothing"}]}
+];
+
+// ===== TREASURE GENERATOR FUNCTIONS =====
+
+function genGem(){
+  const totalW=GEM_WEIGHTS.reduce((s,g)=>s+g.w,0);
+  let r=Math.random()*totalW;
+  for(const g of GEM_WEIGHTS){r-=g.w;if(r<=0){const tier=GEMS_BY_TIER[g.tier];return pick(tier.items)+" ("+tier.gp+"gp)";}}
+  return "Moonstone (1,000gp)";
+}
+
+const ART_EMB_SHORT=["Bejewelled","Beaded","Enamelled","Filigreed","Gilded","Hammered","Lacquered","Fur-trimmed","Pearl-studded","Studded"];
+function genArt(){
+  const mat=pick(ART_MATERIALS).toLowerCase();
+  const item=pick(Math.random()<0.3?ART_JEWELRY:ART_MISC).toLowerCase();
+  const emb=pick(ART_EMBELLISH);
+  const prov=pick(ART_PROVENANCE);
+  const val=(dice("3d6")*100).toLocaleString();
+  const isShort=ART_EMB_SHORT.includes(emb);
+  if(isShort) return sentenceCase(emb.toLowerCase()+" "+mat+" "+item+" from "+prov+" ("+val+"gp)");
+  return sentenceCase(mat+" "+item+" "+emb.toLowerCase()+" from "+prov+" ("+val+"gp)");
+}
+
+function genEnchantment(isWeapon){
+  const school=pick(ENCHANT_SCHOOLS);
+  let name=school;
+  if(Math.random()<0.35){name+=" "+pick(ENCHANT_SPECIAL[school]);}
+  if(Math.random()<0.3){const odd=pick(ENCHANT_ODD[school]);name+=" "+odd;}
+  return name;
+}
+
+function genMagicWeapon(){return titleCase(genEnchantment(true)+" Magic "+pick(MAGIC_WEAPONS));}
+function genMagicArmor(){return titleCase(genEnchantment(false)+" Magic "+pick(MAGIC_ARMOR));}
+function genMagicWeaponOrArmor(){return Math.random()<0.5?genMagicWeapon():genMagicArmor();}
+
+function genAmulet(){
+  const mat=pick(AMULET_MAT);const shape=pick(AMULET_SHAPE);const eng=pick(AMULET_ENGRAVE);const power=pick(AMULET_POWERS);
+  return mat+" "+shape.toLowerCase()+"-shaped amulet engraved with "+eng.toLowerCase()+". "+power;
+}
+
+function genInstrument(){return pick(INSTRUMENT_TYPES)+" of "+pick(INSTRUMENT_MAGIC);}
+
+function genScroll(){
+  const r=Math.random();
+  if(r<0.35){const prot=pick(SCROLL_PROTECTION);return "Scroll of Protection from "+prot+". Duration: "+dice("1d4")+" Turns";}
+  if(r<0.5){const ctrl=pick(SCROLL_CONTROL);return "Scroll of Control (up to 16 lvls of) "+ctrl+". Duration: "+(dice("1d6")+6)+" Turns";}
+  if(r<0.55){const cursed=pick(["Transformation into a harmless creature","A monster of equal Level appears and attacks","A magic item vanishes","Energy drain: -1d4 max HP, -1 Attack and Saves","Prime Abilities reduced by half","Healing takes double time, magical healing halved"]);return "Cursed Scroll (Doom save). "+cursed;}
+  if(r<0.65){return pick(TREASURE_SPELLBOOKS);}
+  if(r<0.85){const rank=pickW([{v:1,w:5},{v:2,w:5},{v:3,w:4},{v:4,w:3},{v:5,w:2},{v:6,w:1}]);const count=pickW([{v:1,w:7},{v:2,w:5},{v:3,w:3},{v:4,w:2},{v:5,w:2},{v:6,w:1}]);const spells=[];const pool=[...ARCANE_SPELLS[rank]];for(let i=0;i<Math.min(count,pool.length);i++){const idx=Math.floor(Math.random()*pool.length);spells.push(pool.splice(idx,1)[0]);}return "Arcane spell scroll: "+spells.join(", ")+" (Rank "+rank+")";}
+  {const rank=pickW([{v:1,w:5},{v:2,w:5},{v:3,w:4},{v:4,w:3},{v:5,w:3}]);const count=pickW([{v:1,w:7},{v:2,w:5},{v:3,w:3},{v:4,w:2},{v:5,w:2},{v:6,w:1}]);const spells=[];const pool=[...HOLY_SPELLS[rank]];for(let i=0;i<Math.min(count,pool.length);i++){const idx=Math.floor(Math.random()*pool.length);spells.push(pool.splice(idx,1)[0]);}return "Holy spell scroll: "+spells.join(", ")+" (Rank "+rank+")";}
+}
+
+function genMagicItemType(){
+  const type=pickW([{v:"weapon",w:25},{v:"armor",w:15},{v:"potion",w:15},{v:"scroll",w:15},{v:"amulet",w:5},{v:"ring",w:5},{v:"crystal",w:3},{v:"garment",w:2},{v:"instrument",w:2},{v:"wondrous",w:3},{v:"balm",w:5},{v:"staffwand",w:5}]);
+  if(type==="weapon") return genMagicWeapon();
+  if(type==="armor") return genMagicArmor();
+  if(type==="potion") return pick(MAGIC_POTIONS);
+  if(type==="scroll") return genScroll();
+  if(type==="amulet") return genAmulet();
+  if(type==="ring") return pick(MAGIC_RINGS);
+  if(type==="crystal") return pick(MAGIC_CRYSTALS);
+  if(type==="garment") return pick(MAGIC_GARMENTS);
+  if(type==="instrument") return genInstrument();
+  if(type==="wondrous") return pick(MAGIC_WONDROUS);
+  if(type==="staffwand") return genInstrument();
+  return pick(MAGIC_POTIONS);
+}
+
+
+// ===== TREASURE MAP HOARD TABLE =====
+const TMAP_TABLE=[
+{min:1,max:16,desc:"Coins",fn:"tmapCoins",dice:"1d4",mult:1000},
+{min:17,max:28,desc:"1 magic item",fn:"tmapMagic",count:1},
+{min:29,max:36,desc:"Gems + art objects",fn:"tmapGemsArt"},
+{min:37,max:44,desc:"2 magic items",fn:"tmapMagic",count:2},
+{min:45,max:48,desc:"2 magic items + gems",fn:"tmapMagicGems",magicCount:2},
+{min:49,max:68,desc:"Coins",fn:"tmapCoins",dice:"5d6",mult:1000},
+{min:69,max:72,desc:"3 magic items",fn:"tmapMagic",count:3},
+{min:73,max:76,desc:"3 magic items + 1 potion",fn:"tmapMagicPotion",magicCount:3},
+{min:77,max:80,desc:"Coins + gems",fn:"tmapCoinsGems",dice:"5d6",mult:1000},
+{min:81,max:88,desc:"Coins",fn:"tmapCoins",dice:"6d6",mult:1000},
+{min:89,max:96,desc:"Coins + 1 magic item",fn:"tmapCoinsMagic",dice:"5d6",mult:1000,magicCount:1},
+{min:97,max:100,desc:"4 magic items + 1 potion",fn:"tmapMagicPotion",magicCount:4}
+];
+
+
+// ===== MAGIC ITEM GENERATOR DATA =====
+const MAGIC_BALMS=["Alchemical Fire (4,000gp) \u2014 5d6 damage fireball in 10' radius","Anti-Magic Balm (3,500gp) \u2014 dispels enchantments","Brewmaster\u2019s Balsam (250gp) \u2014 heals 1d4 HP; soporific","Dimensional Solvent, Gold (3,000gp) \u2014 shrink to 6 inches tall","Dimensional Solvent, Silver (3,000gp) \u2014 double in size; double melee damage","Deorling Balm (500gp) \u2014 heals 1d6 HP or 1d6 CON","Holy Oil (3,000gp) \u2014 3d8 damage to undead","Hunter\u2019s Balm (800gp) \u2014 makes subject scentless","Morphic Unguent (2,000gp) \u2014 alter form into any humanoid","Nebulous Ointment (1,000gp) \u2014 unable to sink in water","Oil of Sharpness (4,000gp) \u2014 +2 Attack and Damage to blade","Oil of St Signis (1,500gp) \u2014 preserves a corpse indefinitely","Ointment of Weightlessness (750gp) \u2014 renders weightless","Orgon\u2019s Sovereign Lubricant (750gp) \u2014 impossible to grasp","Phantasmal Unguent (1,500gp) \u2014 renders object intangible","Salve of Repulsion (3,000gp) \u2014 repulsive scent vs creature type","Solvent of Whispers (1,000gp) \u2014 renders utterly silent","Spectral Oil (1,500gp) \u2014 makes insubstantial like a ghost","Thieves\u2019 Salve (8,000gp) \u2014 grants ability to smell treasure","Viridescent Balm (3,000gp) \u2014 cures all diseases/poisons or +1 HP"];
+const WAND_MATERIALS=["Ash","Crystal","Ebony","Elf-bone","Gold/silver","Holly","Ice (never melts)","Meteoric iron","Oak","Pellucidium","Willow","Yew"];
+const WAND_FORMS=["Forked","Bejeweled","Gnarled","Hexagonal","Iron-capped","Jagged","Knobbly","Leather-handled","Perfectly straight","Silver-capped","Spliced shard","Twisted"];
+const WAND_SURFACES=["Char marks","Engraved spiral","Rime of frost","Glowing embers","Magic sigils","Painted flowers","Pockmarks","A riddle","Rune(s)","Scales","Sprouting leaves","Tiny eyes"];
+const WAND_SPELLS=["Acid Globe","Flaming Spirit","Confusion","Glyph of Locking","Dimension Door","Glyph of Sealing","Disintegrate","Ioun Shard","Dispel Magic","Lightning Bolt","Dominate","Paralysation","Dweomerlight","Phantasm","Fear","Polymorph","Fireball","Vapours of Dream","Firelight","Web"];
+const STAFF_POWERS=["Absorption","Cancellation","Darkness","Detection","Dominion","Negation","Striking","Summoning","Transformation","Withering"];
+const STAFF_SPELL_GROUPS={"Crypts":"Animate Dead, Dark Sight, Word of Doom (35,000gp)","Glyphs":"Glyph of Locking, Glyph of Sealing, Serpent Glyph (20,000gp)","Illusion":"Hallucinatory Terrain, Mirror Image, Phantasm (25,000gp)","Rainbow Hues":"Dweomerlight, Firelight, Ioun Shard (15,000gp)","Sight":"Arcane Eye, Dark Sight, Perceive the Invisible (25,000gp)","Sigils":"Arcane Cypher, Decipher, Knock (15,000gp)","Walls":"Passwall, Wall of Ice, Wall of Stone (30,000gp)","Warding":"Mirror Image, Missile Ward, Shield of Force (20,000gp)","Wizardry":"Conjure Elemental, Fireball, Invisibility, Lightning Bolt, Paralysation, Passwall, Telekinesis, Web (60,000gp)","Woodlands":"Control Weather, Plant Growth, Woodland Veil (35,000gp)"};
+const ROD_MATERIALS=["Brass","Bronze","Ebony","Gold","Iron","Oak","Pellucidium","Pewter","Platinum","Silver","Steel","Yew"];
+const ROD_FORMS=["Dagger head","Fist head","Gargoyle head","Gem-encrusted","Leather grip","Metal studs","Orb head","Saint effigy head","Unicorn fur grip","Unicorn horn tip","Velvet grip","Wyrmskin grip"];
+const ROD_ENGRAVINGS=["Angels","Angels and devils","Coats of arms","Gargoyles","Griffons","Liturgic psalm","Liturgic quote","Saint icons","St Faxis symbols","St Sedge symbols","St Signis symbols","Unicorns"];
+const ROD_SPELLS=["Bless","Holy Light","Bless Weapon","Lesser Healing","Cure Affliction","Light","Detect Evil","Locate Object","Detect Magic","Mantle of Protection","Find Traps","Raise Dead","Flame Ward","Rally","Frost Ward","Remove Curse","Greater Healing","Remove Poison","Hold Person","Silence"];
+const BOOK_COVERS=["Basilisk scale","Charred wood","Cold iron","Cracked leather","Human skin","Mugwudge hide","Pellucidium","Pristine leather","Snake skin","Suede","Wormskin","Wyrm scale"];
+const BOOK_DETAILS=["Cold iron rune","Frost rimed","Gem-studded","Glowering eye","Glowing rune","Gold corners","Scarred","Shudders","Smoking","Sparkling motes","Sparks","Whispers"];
+const BOOK_INTERIORS=["Always dusty","Glows in dark","Illuminated","Marginal art","Marginal notes","Marginal riddles","Mentions the reader","Shifting script","Strong scent","Tiny, dense text","Laced with witticism","Written in blood"];
+const SCROLL_LANGUAGES=["Caprice","Caprice","High Elfish","Coded Woldish","Old Drunic","Drunic","Drunic","Old Woldish","Foreign","Witches\u2019 Cant","Witches\u2019 Cant","Caprice"];
+
+// ===== TRADE GOODS DATA =====
+const ENCHANTED_ODDMENTS=["Boggle Mask (100gp) \u2014 disguises wearer as a fearsome demon","Clockwork Beetle (100gp) \u2014 flies and carries small objects","Crystal Illusion (100gp) \u2014 conjures a fleeting illusion","Dreaming Burl (75gp) \u2014 burns 8 hours, bonus to sleep checks","Dust of Ages (100gp) \u2014 illusion makes object look old and tattered","Eternal Flower (10\u2013500gp) \u2014 timeless beauty","Fairy Comb (100gp) \u2014 changes hair style and colour","Fairy Swan Feather (150gp) \u2014 float 1' off the ground while concentrating","Fire Powder (25gp) \u2014 changes flame colour, doubles light radius for 1 Turn","Frozen Birdsong (250gp) \u2014 chorus of birdsong; \u20132 to saves vs enchanted music","Ghost Crow Quill (50gp) \u2014 writing only visible under moonlight","Gold Leaf (50gp) \u2014 makes an object appear as solid gold","Grave Wax Candle (100gp) \u2014 detect undead creatures","Growling Tree Face (50gp) \u2014 growls when sighting a sentient being","Hungry Shadow (50gp) \u2014 creates an area of magical darkness","Jar of Seasons (250gp) \u2014 conjures an area of magical weather","Redcap\u2019s Mug (50gp) \u2014 transforms water into ale","Salamander Seed (75gp) \u2014 creates a mass of creeping vines","Steed Stump (50gp) \u2014 acts as a mount for 1 day","Wizard\u2019s Pipe (50gp) \u2014 make forms out of smoke"];
+const RARE_FUNGI=["Angel\u2019s Lament (200gp) \u2014 poison: CHA, INT, WIS loss","Bloodcap (150gp) \u2014 poison: risk of fainting","Devil\u2019s Grease (75gp) \u2014 psychedelic: pleasurable physicality; lose 1d4 CON","Foolscap (300gp) \u2014 transform into a werewolf until dawn","Goatman\u2019s Goblet (10gp) \u2014 intoxicant: merry leaping","Grinning Jenny (400gp) \u2014 +1 attack, damage, saves; then catatonia","Hob\u2019s Lewd (15gp) \u2014 intoxicant: energetic jubilation; 24 hours\u2019 sleep","Lambent Stinkhorn (300gp) \u2014 grotesque fungal infection; +1 max HP","Lover\u2019s Gasp (15gp) \u2014 +1 CHA with a specific individual","Mawbarg\u2019s Jam (350gp) \u2014 heals 1d4 HP or weightlessness","Mossmulch (175gp) \u2014 poison: disorientation and coma","Mottlecap (100gp) \u2014 poison: sleeplessness, susceptibility to enchantment","Numblings (200gp) \u2014 grow new organ","Puck\u2019s Ear (20gp) \u2014 psychedelic: listless trance","Purple Nightcap (1,000gp) \u2014 poison: asphyxiation, death, coma","Rotting Mazegill (500gp) \u2014 poison: CON loss","Shaggy Sage (50gp) \u2014 psychedelic: deep sleep with otherworldly dreams","Speckled Sporange (200gp) \u2014 +1 CON or \u20131 CON and STR","Velvet Flounder (100gp) \u2014 raging blood-lust","Witch\u2019s Purple (10gp) \u2014 psychedelic: skin becomes purple"];
+const RARE_HERBS=["Black Clover (400gp) \u2014 psychedelic: communication with objects","Blushing Mandrake (800gp) \u2014 change physical features","Frondhelm (500gp) \u2014 invisible hand manipulates at distance","Goatsweed (600gp) \u2014 causes goats and breggles to caper","Groaning Mandrake (200gp) \u2014 polymorph into last creature eaten","Hag\u2019s Tears (150gp) \u2014 enhanced hearing","Horridwort (1,500gp) \u2014 recall a recently cast arcane spell","Knobbled Mandrake (600gp) \u2014 regrow lost appendage","Mind-Moss (400gp) \u2014 restore lost memories","Oddy Sorrel (1,500gp) \u2014 forget events of last 3d6 days","Parson\u2019s Gobble (300gp) \u2014 eradicates need to sleep for 24 hours","Prancing Mandrake (200gp) \u2014 poison: wooziness and unconsciousness","Rindlewort (1,000gp) \u2014 magic ink that cannot be read by others","Sage Toe (400gp) \u2014 accelerated information uptake","Sclubber\u2019s Twist (100gp) \u2014 psychedelic: wondrous for fairies, nightmarish for mortals","Shub Eggs (25gp) \u2014 cures 1 HP; desire to eat human flesh","Snogglebeard (100gp) \u2014 read thoughts; project thoughts","Woodpurse (750gp) \u2014 interact with incorporeal creatures","Worm-Mallow (400gp) \u2014 induces sobriety, 3-in-6 removes poison","Writhing Mandrake (100gp) \u2014 prevents lycanthropic transformation"];
+const RARE_COMESTIBLES=["Azoth (40gp) \u2014 psychedelic: pleasurable out of body experience","Fairy Fruits (5gp) \u2014 cures 1 HP for fairies; mortals yearn to visit Fairy","Frisk (50gp) \u2014 psychedelic: empathic amplification, detect lies","Golden Aspintheon (80gp) \u2014 sublime joviality","Green Aspintheon (40gp) \u2014 merry boisterousness; see invisible fairies","Ishwagrande (1,000gp) \u2014 incapacitating smoke cloud; curse of befuddlement","Kitty-Nibbles (50gp) \u2014 +1 Attack for grimalkins","Lethe (50gp) \u2014 psychedelic: deep introspection","Mallow-Puff (15gp) \u2014 pipeleaf: mobile puffs of smoke","Memory Dust (350gp) \u2014 memorise one additional arcane spell; addictive","Ourob (50gp) \u2014 digestive bubbling; belch that pacifies fungal creatures","Prigwort Black (80gp) \u2014 sharpness of mind; detect alignment","Purple Shag (30gp) \u2014 pipeleaf: +1 Morale, +2 fear saves","Shandycoiffe Sparkle (400gp) \u2014 changing skin/hair hues; dispels polymorph","Snobble\u2019s Blend (50gp) \u2014 daydreams and reverie; heal 1 HP; repels mogglewomps","Sprite Fancies (75gp) \u2014 semi-invisible while speaking or singing","Sticky Gilly (200gp) \u2014 pipeleaf: water breathing","Tarts of Amicability (250gp) \u2014 subject views bestower as trusted friend","Wanton Wisp (25gp) \u2014 pipeleaf: smoke faces sing in Sylvan","Wyrm-Leaf (100gp) \u2014 pipeleaf: exhale a blast of fire, 1d10 damage"];
+const COMMON_HERBS=["Arrowhame (100gp) \u2014 grants save vs magical disease","Blood Canker (50gp) \u2014 cures 1d3 HP; risk of losing 1 CON","Bosun\u2019s Balm (50gp) \u2014 reduces encumbrance from armour","Fenob (40gp) \u2014 recover 1 HP overnight","Gillywort (50gp) \u2014 warns of poison in liquids","Grue\u2019s Ear (200gp) \u2014 psychedelic: increases alertness","Hogscap (125gp) \u2014 psychedelic: detect magic","Lankswith (15gp) \u2014 cures common ailments","Lilywhite (25gp) \u2014 +1 bonus to good night\u2019s sleep checks","Marshwick (200gp) \u2014 grants save vs animal venom","Moonhaw (100gp) \u2014 see in utter blackness","Ofteritch (150gp) \u2014 grants save vs botanical poison","Sallow Parsley (80gp) \u2014 gain 2 extra HP when resting for a day","Smottlebread (25gp) \u2014 psychedelic: +2 saves vs magic","Spirithame (80gp) \u2014 cures 1d2 HP","Tom-a-Merry (150gp) \u2014 psychedelic: see invisible","Wallowmost (150gp) \u2014 grants save vs fungal poison","Wayfarrow (100gp) \u2014 alleviates forced march effects","Witch\u2019s Oyster (50gp) \u2014 psychedelic: oracular vision","Wolfsbane (25gp) \u2014 wards against werewolves"];
+const EDIBLE_FUNGI_NAMES=["Amethyst Orb","Chanctonslip","Drounberry","Fairy Veil","Goodgilly","Hell Horns","Liverwort Jack","Mangy Horns","Marshguts","Meat and Bread","Monkskull","Moonchook","Old Duchess","Purple Piper","Scrabey\u2019s Hair","Shank-Orbs","Spatchcock","Willy-be-bold","Windcap","Woodsman\u2019s Fancy"];
+const EDIBLE_PLANTS_NAMES=["Barb Cone","Bent Leek","Black Medlar","Bogsnip","Butter Mandrake","Creeping Prune","Gobble-Drop","Hag\u2019s Mantle","Hangleberry","Hob Nut","Jellycup","Lankleaf Root","Noosenut","Prehensile Radish","Shankroot","Snodberry","Wallow Shoot","Westernut","Witch-Elm Lantern","Wranklefrond"];
+const BEVERAGES_COMMON=["Barrowblaster (9cp)","Keye\u2019s Balm (1sp)","Marrowhyte Dark (2sp)","Pilston\u2019s Heartbreaker (4cp)","Bard\u2019s Cordial (2sp)","Old Swythener (5cp)","Prigwort Tipple (3sp)","Mason\u2019s Tea (1cp)"];
+const BEVERAGES_UNCOMMON=["Cobsworth Pale (5sp)","Halthwidden\u2019s (3sp)","Merryweather (4sp)","Tithelands Cider (2sp)","Glubwob (2sp)","Mead (12sp)","Distillation of Dusk (7sp)","Ether of Blue (5sp)","Pokey Nog (5sp)","Porrid\u2019s Full Moon (1sp)","The Night Liqueur (6sp)","Wakelyke\u2019s Scarlet (4cp)","Earl Yellow Tea (5cp)","Buckston Fizz (12sp)","Faggley\u2019s Iced Wine (14sp)","Inkling Wine (11sp)"];
+const BEVERAGES_RARE=["Moon\u2019s Milk (2sp)","Nippers (5sp)","Lord Oberon\u2019s Ambrosial (1gp)","Prigwort Pure (7sp)","Purple Aspintheon (1gp)","Tomfoy\u2019s Tea (1sp)","Lady Mauve (3gp)","The Cold Prince (35sp)","Underbrood\u2019s Vintage (5gp)"];
+const PIPELEAF_NAMES=["Barley Blend (4cp)","Burglar\u2019s Blend (3cp)","Crofter\u2019s Daughter (5cp)","Dusty Abbot (2sp)","Fatty Lumper (7cp)","Flufftop (1sp)","Gamgy Weed (5cp)","The Gibbet\u2019s Gift (7cp)","Green Jenny (8cp)","Lanksbottom Leaf (6cp)","Mogglemoss (18cp)","Mummer\u2019s Farce (8cp)","Old Doby (6cp)","Pedlar Puff (7cp)","Shaggy Pony (7cp)","Special Shag (3sp)","Speckled Wyrm (25cp)","Wayside Wisp (25cp)","Westling\u2019s Weed (2sp)","Witch\u2019s Shag (8cp)"];
+
+// ===== TRADE GOODS TABLES =====
+const TRADE_ARCANE=[
+{item:"Alchemical Tonic",num:"1d6",cost:"250gp"},{item:"Amber Nectar",num:"1d6",cost:"200gp"},{item:"Azoth",num:"1d6",cost:"40gp"},
+{item:"_balm",num:"1d3",cost:"roll"},{item:"Bestial Centaur Items",num:"1d3",cost:"250gp"},{item:"Boggin Vomit",num:"1d3",cost:"100gp"},
+{item:"Braithmaid Talismans",num:"1d3",cost:"500gp"},{item:"Brambling Scrolls",num:"1d4",cost:"250gp"},{item:"Brewmaster\u2019s Balsam",num:"1d3",cost:"250gp"},
+{item:"_oddment",num:"1d6",cost:"roll"},{item:"_oddment",num:"1d6",cost:"roll"},{item:"Gelatinous Hulk Brains",num:"1d3",cost:"500gp"},
+{item:"Hungry Shadow",num:"1d3",cost:"50gp"},{item:"Lethe",num:"1d6",cost:"50gp"},{item:"Memory Dust",num:"1d4",cost:"350gp"},
+{item:"Orgon\u2019s Scintillating Philtre",num:"1d3",cost:"500gp"},{item:"_potion",num:"1d3",cost:"roll"},{item:"Wizard\u2019s Pipe",num:"1d4",cost:"50gp"},
+{item:"Wodewose Blood",num:"1d3",cost:"200gp"},{item:"Writhing Mandrake",num:"1d3",cost:"100gp"}];
+const TRADE_HERBAL=[
+{item:"Arrowhame",num:"2d4",cost:"100gp"},{item:"Blood Canker",num:"2d6",cost:"50gp"},{item:"Blushing Mandrake",num:"1d6",cost:"800gp"},
+{item:"_common_herb",num:"2d4",cost:"roll"},{item:"_common_herb",num:"2d4",cost:"roll"},{item:"_common_herb",num:"2d4",cost:"roll"},
+{item:"_common_herb",num:"2d4",cost:"roll"},{item:"_edible_fungus",num:"3d6",cost:"7sp"},{item:"_edible_fungus",num:"3d6",cost:"7sp"},
+{item:"_edible_plant",num:"3d6",cost:"7sp"},{item:"_edible_plant",num:"3d6",cost:"7sp"},{item:"Marshwick",num:"2d4",cost:"200gp"},
+{item:"Mind-Moss",num:"1d6",cost:"400gp"},{item:"_rare_fungus",num:"1d6",cost:"roll"},{item:"_rare_fungus",num:"1d6",cost:"roll"},
+{item:"_rare_herb",num:"1d6",cost:"roll"},{item:"_rare_herb",num:"1d6",cost:"roll"},{item:"_rare_herb",num:"1d6",cost:"roll"},
+{item:"Sage Toe",num:"1d6",cost:"400gp"},{item:"Wallowmost",num:"2d4",cost:"150gp"}];
+const TRADE_FAIRY=[
+{item:"Bottled Light",num:"1d6",cost:"200gp"},{item:"_oddment",num:"1d6",cost:"roll"},{item:"_oddment",num:"1d6",cost:"roll"},
+{item:"_oddment",num:"1d6",cost:"roll"},{item:"Essence of Sweet Dreams",num:"1d6",cost:"250gp"},{item:"Fairy Fruits",num:"3d6",cost:"5gp"},
+{item:"Fairy Fruits",num:"3d6",cost:"5gp"},{item:"Fairy Fruits",num:"3d6",cost:"5gp"},{item:"Fairy Fruits",num:"3d6",cost:"5gp"},
+{item:"Flufftop",num:"2d6",cost:"1sp"},{item:"_rare_comest",num:"1d6",cost:"roll"},{item:"_rare_comest",num:"1d6",cost:"roll"},
+{item:"_rare_comest",num:"1d6",cost:"roll"},{item:"_rare_fungus",num:"1d6",cost:"roll"},{item:"_rare_fungus",num:"1d6",cost:"roll"},
+{item:"_rare_fungus",num:"1d6",cost:"roll"},{item:"_rare_herb",num:"1d6",cost:"roll"},{item:"_rare_herb",num:"1d6",cost:"roll"},
+{item:"Tom-a-Merry",num:"1d3",cost:"150gp"},{item:"Wayside Wisp",num:"3d6",cost:"25cp"}];
+const TRADE_MUNDANE=[
+{item:"Bedrolls",num:"2d4",cost:"2gp"},{item:"_beer",num:"3d6",cost:"roll"},{item:"_wine",num:"2d6",cost:"roll"},
+{item:"Bundles of Firewood",num:"2d6",cost:"1gp"},{item:"_beer_cask",num:"1d6",cost:"roll"},{item:"Coils of Rope (50\u2019)",num:"2d6",cost:"1gp"},
+{item:"Cooking Pot Sets",num:"2d6",cost:"3gp"},{item:"_edible_fungus",num:"3d6",cost:"7sp"},{item:"_edible_plant",num:"3d6",cost:"7sp"},
+{item:"Fresh Rations (cheese)",num:"1d6",cost:"3gp"},{item:"Fresh Rations (fish)",num:"1d6",cost:"1gp"},{item:"Fresh Rations (root veg.)",num:"3d6",cost:"7sp"},
+{item:"Fresh Rations (sausages)",num:"3d6",cost:"1gp"},{item:"Gourd Pipes",num:"2d6",cost:"2gp"},{item:"Hammers (small)",num:"3d6",cost:"2gp"},
+{item:"Musical Instruments (wind)",num:"3d6",cost:"5gp"},{item:"Oil Flasks",num:"2d6",cost:"1gp"},{item:"_pipeleaf",num:"2d6",cost:"roll"},
+{item:"_pipeleaf",num:"2d6",cost:"roll"},{item:"Torches (bundles of 3)",num:"2d6",cost:"1gp"}];
+
+function genTradeItem(entry){
+  const qty=dice(entry.num);
+  let name=entry.item,cost=entry.cost;
+  if(name==="_balm"){const b=pick(MAGIC_BALMS);return qty+" "+b;}
+  if(name==="_oddment"){const o=pick(ENCHANTED_ODDMENTS);return qty+" "+o;}
+  if(name==="_potion"){const p=pick(MAGIC_POTIONS);return qty+" "+p;}
+  if(name==="_common_herb"){const h=pick(COMMON_HERBS);return qty+" "+h;}
+  if(name==="_rare_fungus"){const f=pick(RARE_FUNGI);return qty+" "+f;}
+  if(name==="_rare_herb"){const h=pick(RARE_HERBS);return qty+" "+h;}
+  if(name==="_rare_comest"){const r=pick(RARE_COMESTIBLES);return qty+" "+r;}
+  if(name==="_edible_fungus"){const f=pick(EDIBLE_FUNGI_NAMES);return qty+" rations of "+f+" ("+cost+" each)";}
+  if(name==="_edible_plant"){const p=pick(EDIBLE_PLANTS_NAMES);return qty+" rations of "+p+" ("+cost+" each)";}
+  if(name==="_beer"||name==="_wine"||name==="_beer_cask"){const b=pick([...BEVERAGES_COMMON,...BEVERAGES_UNCOMMON]);return qty+" "+(name==="_beer_cask"?"casks":"bottles")+" of "+b;}
+  if(name==="_pipeleaf"){const p=pick(PIPELEAF_NAMES);return qty+" pouches of "+p;}
+  return qty+" "+name+" ("+cost+" each)";
+}
+
+function genTradeGoods(category){
+  const table=category==="arcane"?TRADE_ARCANE:category==="fairy"?TRADE_FAIRY:category==="herbal"?TRADE_HERBAL:TRADE_MUNDANE;
+  const rolls=2;
+  const items=[];
+  for(let i=0;i<rolls;i++){
+    const entry=pick(table);
+    items.push(genTradeItem(entry));
+  }
+  return items;
+}
+
+const TRADE_CATEGORIES=[{id:"mundane",label:"Mundane"},{id:"herbal",label:"Herbal"},{id:"fairy",label:"Fairy"},{id:"arcane",label:"Arcane"}];
+
+const MAGIC_ITEM_TYPES=[{id:"amulet",label:"01\u201305: Amulet / Talisman",w:5},{id:"armor",label:"06\u201320: Magic Armour",w:15},{id:"balm",label:"21\u201325: Magic Balm / Oil",w:5},{id:"crystal",label:"26\u201328: Magic Crystal",w:3},{id:"garment",label:"29\u201330: Magic Garment",w:2},{id:"instrument",label:"31\u201332: Magic Instrument",w:2},{id:"ring",label:"33\u201337: Magic Ring",w:5},{id:"weapon",label:"38\u201362: Magic Weapon",w:25},{id:"potion",label:"63\u201377: Potion",w:15},{id:"rod_staff_wand",label:"78\u201382: Rod / Staff / Wand",w:5},{id:"scroll_book",label:"83\u201397: Scroll / Book",w:15},{id:"wondrous",label:"98\u201300: Wondrous Item",w:3}];
+function genMIWeapon(){const s=pick(ENCHANT_SCHOOLS);return{school:s,special:Math.random()<0.35?pick(ENCHANT_SPECIAL[s]):"",odd:Math.random()<0.3?pick(ENCHANT_ODD[s]):"",weapon:pick(MAGIC_WEAPONS)};}
+function renderMIWeapon(w){const p=[w.school];if(w.special)p.push(w.special);p.push("Magic");p.push(w.weapon);return titleCase(p.join(" "));}
+function genMIArmor(){const s=pick(ENCHANT_SCHOOLS);return{school:s,special:Math.random()<0.35?pick(ENCHANT_SPECIAL[s]):"",odd:Math.random()<0.3?pick(ENCHANT_ODD[s]):"",armor:pick(MAGIC_ARMOR)};}
+function renderMIArmor(a){const p=[a.school];if(a.special)p.push(a.special);p.push("Magic");p.push(a.armor);return titleCase(p.join(" "));}
+function genMIRSW(){const kind=pickW([{v:"wand",w:4},{v:"staff",w:1},{v:"rod",w:1}]);if(kind==="wand")return{kind:"Wand",material:pick(WAND_MATERIALS),form:pick(WAND_FORMS),surface:pick(WAND_SURFACES),spell:pick(WAND_SPELLS),charges:dice("2d10")};if(kind==="staff"){const g=pick(Object.keys(STAFF_SPELL_GROUPS));return{kind:"Staff",power:pick(STAFF_POWERS),material:pick(WAND_MATERIALS),form:pick(WAND_FORMS),surface:pick(WAND_SURFACES),spellGroup:g,spells:STAFF_SPELL_GROUPS[g],charges:dice("3d10")};}return{kind:"Rod",material:pick(ROD_MATERIALS),form:pick(ROD_FORMS),engraving:pick(ROD_ENGRAVINGS),spell:pick(ROD_SPELLS),charges:dice("1d10")};}
+function renderMIRSW(r){if(r.kind==="Wand")return r.material+" "+r.form.toLowerCase()+" magic wand with "+r.surface.toLowerCase()+". Casts "+r.spell+" ("+r.charges+" charges)";if(r.kind==="Staff")return r.power+" "+r.material.toLowerCase()+" "+r.form.toLowerCase()+" magic staff of "+r.spellGroup+", with "+r.surface.toLowerCase()+". Casts "+r.spells+". "+r.charges+" charges";return r.material+" rod with "+r.form.toLowerCase()+" and "+r.engraving.toLowerCase()+" engraving. Casts "+r.spell+" ("+r.charges+" charges)";}
+function genMIScroll(){const r=Math.random();if(r<0.35)return{subtype:"protection",target:pick(SCROLL_PROTECTION),duration:dice("1d4")};if(r<0.5)return{subtype:"control",target:pick(SCROLL_CONTROL),duration:dice("1d6")+6};if(r<0.55)return{subtype:"cursed",effect:pick(["Transformation into a harmless creature","A monster of equal Level appears and attacks","A magic item vanishes","Energy drain: -1d4 max HP, -1 Attack and Saves","Prime Abilities reduced by half","Healing takes double time, magical healing halved"])};if(r<0.64)return{subtype:"spellbook",book:pick(TREASURE_SPELLBOOKS),cover:pick(BOOK_COVERS),details:pick(BOOK_DETAILS),interior:pick(BOOK_INTERIORS)};if(r<0.82){const rk=pickW([{v:1,w:5},{v:2,w:5},{v:3,w:4},{v:4,w:3},{v:5,w:2},{v:6,w:1}]),ct=pickW([{v:1,w:7},{v:2,w:5},{v:3,w:3},{v:4,w:2},{v:5,w:2},{v:6,w:1}]),pool=[...ARCANE_SPELLS[rk]],sp=[];for(let i=0;i<Math.min(ct,pool.length);i++){const ix=Math.floor(Math.random()*pool.length);sp.push(pool.splice(ix,1)[0]);}return{subtype:"arcane",rank:rk,spells:sp,lang:pick(SCROLL_LANGUAGES)};}{const rk=pickW([{v:1,w:5},{v:2,w:5},{v:3,w:4},{v:4,w:3},{v:5,w:3}]),ct=pickW([{v:1,w:7},{v:2,w:5},{v:3,w:3},{v:4,w:2},{v:5,w:2},{v:6,w:1}]),pool=[...HOLY_SPELLS[rk]],sp=[];for(let i=0;i<Math.min(ct,pool.length);i++){const ix=Math.floor(Math.random()*pool.length);sp.push(pool.splice(ix,1)[0]);}return{subtype:"holy",rank:rk,spells:sp,lang:pick(SCROLL_LANGUAGES)};}}
+function renderMIScroll(s){if(s.subtype==="protection")return"Scroll of Protection from "+s.target+". Duration: "+s.duration+" Turns";if(s.subtype==="control")return"Scroll of Control (up to 16 lvls of) "+s.target+". Duration: "+s.duration+" Turns";if(s.subtype==="cursed")return"Cursed Scroll (Doom save). "+s.effect;if(s.subtype==="spellbook")return s.book+". "+s.cover+" cover, "+s.details.toLowerCase()+". Interior: "+s.interior.toLowerCase();if(s.subtype==="arcane")return"Arcane spell scroll (Rank "+s.rank+"): "+s.spells.join(", ")+". Written in "+s.lang;return"Holy spell scroll (Rank "+s.rank+"): "+s.spells.join(", ")+". Written in "+s.lang;}
+function genMagicItemByType(typeId){if(typeId==="amulet"){const d={mat:pick(AMULET_MAT),shape:pick(AMULET_SHAPE),engrave:pick(AMULET_ENGRAVE),power:pick(AMULET_POWERS)};return{type:"amulet",data:d,render(){return d.mat+" "+d.shape.toLowerCase()+"-shaped amulet engraved with "+d.engrave.toLowerCase()+". "+d.power;}};}if(typeId==="armor"){const d=genMIArmor();return{type:"armor",data:d,render(){return renderMIArmor(d);}};}if(typeId==="balm")return{type:"balm",item:pick(MAGIC_BALMS),render(){return this.item;}};if(typeId==="crystal")return{type:"crystal",item:pick(MAGIC_CRYSTALS),render(){return this.item;}};if(typeId==="garment")return{type:"garment",item:pick(MAGIC_GARMENTS),render(){return this.item;}};if(typeId==="instrument"){const d={itype:pick(INSTRUMENT_TYPES),magic:pick(INSTRUMENT_MAGIC)};return{type:"instrument",data:d,render(){return d.itype+" of "+d.magic;}};}if(typeId==="ring")return{type:"ring",item:pick(MAGIC_RINGS),render(){return this.item;}};if(typeId==="weapon"){const d=genMIWeapon();return{type:"weapon",data:d,render(){return renderMIWeapon(d);}};}if(typeId==="potion")return{type:"potion",item:pick(MAGIC_POTIONS),render(){return this.item;}};if(typeId==="rod_staff_wand"){const d=genMIRSW();return{type:"rod_staff_wand",data:d,render(){return renderMIRSW(d);}};}if(typeId==="scroll_book"){const d=genMIScroll();return{type:"scroll_book",data:d,render(){return renderMIScroll(d);}};}if(typeId==="wondrous")return{type:"wondrous",item:pick(MAGIC_WONDROUS),render(){return this.item;}};return{type:"unknown",render(){return"Unknown item";}};}
+
+function genTmapCoins(entry){
+  const val=dice(entry.dice)*entry.mult;
+  const face=Math.random()<0.1?"Antique "+pick(COIN_HEADS)+" & "+pick(COIN_TAILS)+" (x2 value)":pick(COIN_HEADS)+" & "+pick(COIN_TAILS);
+  return {text:val.toLocaleString()+" gp",face:face};
+}
+function genTmapGems(diceStr){
+  diceStr=diceStr||"5d6";
+  const n=diceStr.includes("*")?dice(diceStr.split("*")[0])*parseInt(diceStr.split("*")[1]):dice(diceStr);
+  let items=[];
+  for(let i=0;i<Math.min(n,30);i++) items.push(genGem());
+  return {count:n,items:items};
+}
+function genTmapArt(diceStr){
+  diceStr=diceStr||"2d10";
+  const n=diceStr.includes("*")?dice(diceStr.split("*")[0])*parseInt(diceStr.split("*")[1]):dice(diceStr);
+  let items=[];
+  for(let i=0;i<Math.min(n,15);i++) items.push(genArt());
+  return {count:n,items:items};
+}
+function genTmapMagicItems(count){
+  let items=[];
+  for(let i=0;i<count;i++) items.push(genMagicItemType());
+  return items;
+}
+function genTmapPotion(){return pick(MAGIC_POTIONS);}
+
+function genTreasureMap(tableIdx){
+  const entry=TMAP_TABLE[tableIdx];
+  // Build structured result with separately re-rollable parts
+  const result={idx:tableIdx,entry:entry,parts:{}};
+  
+  if(entry.fn==="tmapCoins"){
+    result.parts.coins=genTmapCoins(entry);
+  }
+  else if(entry.fn==="tmapMagic"){
+    result.parts.magic=genTmapMagicItems(entry.count);
+  }
+  else if(entry.fn==="tmapGemsArt"){
+    result.parts.gems=genTmapGems("1d6*10");
+    result.parts.art=genTmapArt("2d10");
+  }
+  else if(entry.fn==="tmapMagicGems"){
+    result.parts.magic=genTmapMagicItems(entry.magicCount);
+    result.parts.gems=genTmapGems("5d6");
+  }
+  else if(entry.fn==="tmapCoinsGems"){
+    result.parts.coins=genTmapCoins(entry);
+    result.parts.gems=genTmapGems("5d6");
+  }
+  else if(entry.fn==="tmapMagicPotion"){
+    result.parts.magic=genTmapMagicItems(entry.magicCount);
+    result.parts.potion=genTmapPotion();
+  }
+  else if(entry.fn==="tmapCoinsMagic"){
+    result.parts.coins=genTmapCoins(entry);
+    result.parts.magic=genTmapMagicItems(entry.magicCount);
+  }
+  
+  result.html=renderTmapResult(result);
+  return result;
+}
+
+function renderTmapResult(result){
+  const entry=result.entry;
+  const p=result.parts;
+  let sections=[];
+  
+  if(p.coins) sections.push("<b>Coins:</b> "+p.coins.text+"<br><i>Coins show: "+p.coins.face+"</i>");
+  if(p.gems){
+    const list=p.gems.items.map((m,i)=>"<b>"+(i+1)+".</b> "+m).join("<br>");
+    sections.push("<b>Gems ("+p.gems.count+"):</b><br>"+list);
+  }
+  if(p.art){
+    const list=p.art.items.map((m,i)=>"<b>"+(i+1)+".</b> "+m).join("<br>");
+    sections.push("<b>Art Objects ("+p.art.count+"):</b><br>"+list);
+  }
+  if(p.magic){
+    const list=p.magic.map((m,i)=>"<b>"+(i+1)+".</b> "+m).join("<br>");
+    sections.push("<b>Magic Items ("+p.magic.length+"):</b><br>"+list);
+  }
+  if(p.potion) sections.push("<b>Potion:</b> "+p.potion);
+  
+  const range=entry.min===entry.max?String(entry.min):entry.min+"\u2013"+entry.max;
+  return '<div class="npc-card"><b>Treasure Map Hoard</b> (d100: '+range+' \u2014 '+entry.desc+')<br><br>'+sections.join("<br><br>")+'</div>';
+}
+
+function genTreasureCoins(tierIdx){
+  const ct=COIN_TIERS[tierIdx];
+  let parts=[];
+  for(const slot of ct.slots){
+    if(Math.random()<=slot.pct){
+      const qty=dice(slot.dice)*slot.mult;
+      parts.push(qty.toLocaleString()+" "+slot.unit);
+    }
+  }
+  const coinStr=parts.length?parts.join(", "):"None";
+  const face=Math.random()<0.1?"Antique "+pick(COIN_HEADS)+" & "+pick(COIN_TAILS)+" (x2 value)":pick(COIN_HEADS)+" & "+pick(COIN_TAILS);
+  return {text:coinStr,face:face,hasCoins:parts.length>0,tier:ct.id};
+}
+
+function genTreasureRiches(tierIdx){
+  const rt=RICHES_TIERS[tierIdx];
+  let items=[];
+  if(rt.gemPct>0 && Math.random()<=rt.gemPct){
+    const numGems=dice(rt.gemDice);
+    for(let i=0;i<Math.min(numGems,20);i++) items.push(genGem());
+  }
+  if(rt.artPct>0 && Math.random()<=rt.artPct){
+    let numArt=rt.artDice.includes("*")?dice(rt.artDice.split("*")[0])*parseInt(rt.artDice.split("*")[1]):dice(rt.artDice);
+    for(let i=0;i<Math.min(numArt,10);i++) items.push(genArt());
+  }
+  return {text:items.length?items.map((m,i)=>"<b>"+(i+1)+".</b> "+m).join("<br>"):"None",tier:rt.id};
+}
+
+function genTreasureMagic(tierIdx){
+  const mt=MAGIC_TIERS[tierIdx];
+  let parts=[];
+  for(const item of mt.items){
+    if(Math.random()<=item.pct && item.fn!=="nothing"){
+      let count=typeof item.count==="string"?dice(item.count):(item.count||1);
+      if(item.fn==="magicItemType"){for(let i=0;i<count;i++) parts.push(genMagicItemType());}
+      else if(item.fn==="magicWeaponOrArmor"){parts.push(genMagicWeaponOrArmor());}
+      else if(item.fn==="potionBatch"){const n=dice("2d4");for(let i=0;i<n;i++) parts.push(pick(MAGIC_POTIONS));}
+      else if(item.fn==="scrollBatch"){const n=dice("1d4");for(let i=0;i<n;i++) parts.push(genScroll());}
+      else if(item.fn==="magicItemsAndPotion"){for(let i=0;i<count;i++) parts.push(genMagicItemType());parts.push(pick(MAGIC_POTIONS));}
+      else if(item.fn==="magicItemsScrollPotion"){for(let i=0;i<count;i++) parts.push(genMagicItemType());parts.push(pick(MAGIC_POTIONS));parts.push(genScroll());}
+      else if(item.fn==="magicItemsAndScroll"){for(let i=0;i<count;i++) parts.push(genMagicItemType());parts.push(genScroll());}
+    }
+  }
+  return {text:parts.length?parts.map((m,i)=>"<b>"+(i+1)+".</b> "+m).join("<br>"):"None",tier:mt.id};
+}
+
+function genTreasure(coinTier,richesTier,magicTier){
+  const coins=genTreasureCoins(coinTier);
+  const riches=genTreasureRiches(richesTier);
+  const magic=genTreasureMagic(magicTier);
+  return `<div class="npc-card"><b>Treasure Hoard (${coins.tier} / ${riches.tier} / ${magic.tier})</b><br><br><b>Coins:</b> ${coins.text}${coins.hasCoins?"<br><i>Coins show: "+coins.face+"</i>":""}<br><br><b>Riches:</b><br>${riches.text}<br><br><b>Magic Items:</b><br>${magic.text}</div>`;
+}
+
 </script>
 </body>
 </html>
