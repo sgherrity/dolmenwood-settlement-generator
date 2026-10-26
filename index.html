@@ -684,7 +684,7 @@ function switchTab(tab){
 function renderSavedTab(){
   const saved=loadSaved();
   const container=document.getElementById("saved-output");
-  const locs=Object.keys(saved.locations).sort();
+  const locs=rosterLocationOrder(saved);
   
   let toolbar='';
 
@@ -744,11 +744,28 @@ function renderSavedTab(){
     html+=`</div></div>`;
   }
   
-  container.innerHTML='<p style="color:var(--fg-soft)">Drag an NPC’s name onto another location to move them.</p>'+html;
+  container.innerHTML='<p style="color:var(--fg-soft)">Drag an NPC’s name to move them. Drag a location heading above or below another heading to rearrange locations.</p>'+html;
   enableRosterDragging(container);
 }
 
 // Move through the same persistence path used by roster edits and cloud sync.
+function rosterLocationOrder(saved){
+  const names=Object.keys(saved.locations||{});
+  const order=Array.isArray(saved.locationOrder)?saved.locationOrder:[];
+  return [...new Set([...order.filter(n=>names.includes(n)),...names.sort()])];
+}
+
+function reorderRosterLocation(from,to,after){
+  const saved=loadSaved();
+  const order=rosterLocationOrder(saved);
+  if(from===to||!order.includes(from)||!order.includes(to)) return false;
+  order.splice(order.indexOf(from),1);
+  order.splice(order.indexOf(to)+(after?1:0),0,from);
+  saved.locationOrder=order;
+  storeSaved(saved);
+  return true;
+}
+
 function moveRosterEntry(entryId,from,to){
   if(from===to) return false;
   const saved=loadSaved();
@@ -772,6 +789,7 @@ function enableRosterDragging(container){
   const clearTargets=()=>container.querySelectorAll(".roster-drop-target").forEach(el=>{
     el.classList.remove("roster-drop-target");
     el.style.outline="";
+    el.style.boxShadow="";
   });
   container.querySelectorAll(".saved-entry-wrap").forEach(wrap=>{
     const header=wrap.querySelector(".saved-card-header");
@@ -794,13 +812,37 @@ function enableRosterDragging(container){
     });
   });
   container.querySelectorAll(".saved-location").forEach(location=>{
+    const heading=location.querySelector(".saved-loc-header");
+    heading.draggable=true;
+    heading.title="Drag to rearrange locations";
+    heading.addEventListener("dragstart",event=>{
+      if(event.target.closest(".loc-actions")||container.querySelector('[contenteditable="true"]')){
+        event.preventDefault();
+        return;
+      }
+      dragged={kind:"location",from:location.dataset.loc};
+      event.dataTransfer.effectAllowed="move";
+      event.dataTransfer.setData("text/plain",dragged.from);
+      location.style.opacity="0.45";
+    });
+    heading.addEventListener("dragend",()=>{
+      dragged=null;
+      location.style.opacity="";
+      clearTargets();
+    });
     location.addEventListener("dragover",event=>{
       if(!dragged||dragged.from===location.dataset.loc) return;
       event.preventDefault();
       event.dataTransfer.dropEffect="move";
       clearTargets();
       location.classList.add("roster-drop-target");
-      location.style.outline="2px solid var(--focus-ring)";
+      if(dragged.kind==="location"){
+        const rect=heading.getBoundingClientRect();
+        const after=event.clientY>rect.top+rect.height/2;
+        location.style.boxShadow=(after?"0 3px":"0 -3px")+" 0 var(--focus-ring)";
+      }else{
+        location.style.outline="2px solid var(--focus-ring)";
+      }
     });
     location.addEventListener("dragleave",event=>{
       if(!location.contains(event.relatedTarget)) clearTargets();
@@ -809,7 +851,10 @@ function enableRosterDragging(container){
       if(!dragged) return;
       event.preventDefault();
       clearTargets();
-      const moved=moveRosterEntry(dragged.id,dragged.from,location.dataset.loc);
+      const rect=heading.getBoundingClientRect();
+      const moved=dragged.kind==="location"
+        ?reorderRosterLocation(dragged.from,location.dataset.loc,event.clientY>rect.top+rect.height/2)
+        :moveRosterEntry(dragged.id,dragged.from,location.dataset.loc);
       dragged=null;
       if(moved) renderSavedTab();
     });
@@ -937,6 +982,9 @@ function confirmRename(oldName){
         saved.locations[newName]=saved.locations[oldName];
       }
       delete saved.locations[oldName];
+      if(Array.isArray(saved.locationOrder)){
+        saved.locationOrder=saved.locationOrder.map(n=>n===oldName?newName:n);
+      }
     }
     storeSaved(saved);
   }
@@ -1887,6 +1935,9 @@ function importSaved(input){
       if(!imported.locations){alert("Invalid file format. Expected a Dolmenwood NPC export.");return;}
       // Merge with existing
       const saved=loadSaved();
+      if(Array.isArray(imported.locationOrder)){
+        saved.locationOrder=[...new Set([...(saved.locationOrder||[]),...imported.locationOrder])];
+      }
       let added=0;
       for(const [loc,data] of Object.entries(imported.locations)){
         if(!saved.locations[loc]) saved.locations[loc]={entries:[]};
@@ -2748,7 +2799,7 @@ async function fbPull(){
     if(!remote||!remote.locations) return true; // empty DB
     
     // Replace local with remote (Firebase is the source of truth)
-    storeSavedLocal({locations:remote.locations});
+    storeSavedLocal({locations:remote.locations,locationOrder:remote.locationOrder||[]});
     return true;
   }catch(err){
     console.error("Firebase pull failed:",err);
@@ -2792,6 +2843,7 @@ async function fbMerge(){
       re.forEach(e=>{if(!byId[e.id]) byId[e.id]=e;});
       merged.locations[loc]={entries:Object.values(byId)};
     }
+    merged.locationOrder=[...new Set([...rosterLocationOrder(local),...rosterLocationOrder(remote||{locations:{}})])];
     storeSavedLocal(merged);
     await fbPush();
     _localDirty=false;updateSyncDot();renderSavedTab();
