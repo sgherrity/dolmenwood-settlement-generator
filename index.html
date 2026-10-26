@@ -699,7 +699,7 @@ function renderSavedTab(){
   let html="";
   for(const loc of locs){
     const locData=saved.locations[loc];
-    if(!locData.entries||locData.entries.length===0) continue;
+    if(!locData.entries) continue;
     
     // Group entries by type
     const groups={};
@@ -744,7 +744,76 @@ function renderSavedTab(){
     html+=`</div></div>`;
   }
   
-  container.innerHTML=html;
+  container.innerHTML='<p style="color:var(--fg-soft)">Drag an NPC’s name onto another location to move them.</p>'+html;
+  enableRosterDragging(container);
+}
+
+// Move through the same persistence path used by roster edits and cloud sync.
+function moveRosterEntry(entryId,from,to){
+  if(from===to) return false;
+  const saved=loadSaved();
+  const source=saved.locations[from]?.entries;
+  const target=saved.locations[to]?.entries;
+  if(!source||!target) return false;
+  const index=source.findIndex(e=>e.id===entryId);
+  if(index<0) return false;
+  if(target.some(e=>e.id===entryId)){
+    alert("This NPC already exists at that location. Resolve the duplicate before moving.");
+    return false;
+  }
+  target.push(source.splice(index,1)[0]);
+  // Keep an empty source location available as a drop target for moving back.
+  storeSaved(saved);
+  return true;
+}
+
+function enableRosterDragging(container){
+  let dragged=null;
+  const clearTargets=()=>container.querySelectorAll(".roster-drop-target").forEach(el=>{
+    el.classList.remove("roster-drop-target");
+    el.style.outline="";
+  });
+  container.querySelectorAll(".saved-entry-wrap").forEach(wrap=>{
+    const header=wrap.querySelector(".saved-card-header");
+    header.draggable=true;
+    header.title="Drag to another location";
+    header.addEventListener("dragstart",event=>{
+      if(event.target.closest(".card-actions")||wrap.querySelector('[contenteditable="true"]')){
+        event.preventDefault();
+        return;
+      }
+      dragged={id:wrap.dataset.entryId,from:wrap.dataset.loc};
+      event.dataTransfer.effectAllowed="move";
+      event.dataTransfer.setData("text/plain",wrap.querySelector(".entry-name").textContent);
+      wrap.style.opacity="0.45";
+    });
+    header.addEventListener("dragend",()=>{
+      dragged=null;
+      wrap.style.opacity="";
+      clearTargets();
+    });
+  });
+  container.querySelectorAll(".saved-location").forEach(location=>{
+    location.addEventListener("dragover",event=>{
+      if(!dragged||dragged.from===location.dataset.loc) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect="move";
+      clearTargets();
+      location.classList.add("roster-drop-target");
+      location.style.outline="2px solid var(--focus-ring)";
+    });
+    location.addEventListener("dragleave",event=>{
+      if(!location.contains(event.relatedTarget)) clearTargets();
+    });
+    location.addEventListener("drop",event=>{
+      if(!dragged) return;
+      event.preventDefault();
+      clearTargets();
+      const moved=moveRosterEntry(dragged.id,dragged.from,location.dataset.loc);
+      dragged=null;
+      if(moved) renderSavedTab();
+    });
+  });
 }
 
 // ===== SAVED CARD ACTIONS =====
